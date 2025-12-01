@@ -1,0 +1,178 @@
+@startuml
+' Definición de la dirección del diagrama
+left to right direction
+
+' --- Enums ---
+enum Dificultad {
+    EASY
+    MEDIUM
+    HARD
+}
+enum Material {
+    WOOD
+    METAL
+    PLASTIC
+    TEXTILE
+}
+enum TipoPista {
+    TEXT
+    PUZZLE
+    VISUAL
+}
+enum TipoLogro {
+    FIRST_TIME_SOLVER
+    SPEED_RUN
+    ALL_CLUES_FOUND
+}
+
+' --- Interfaces y Clases Base ---
+interface ElementoInventario {
+    + getNombre(): String
+    + getPrecio(): double
+    + getDescripcion(): String
+}
+interface Observador {
+    + getIdJugador(): String
+    + actualizar(mensaje: String): void
+}
+interface Sujeto {
+    + registrarObservador(o: Observador): void
+    + eliminarObservador(o: Observador): void
+    + notificarObservadores(evento: String): void
+}
+
+' --- Entidades de Inventario ---
+class Decoracion {
+    - nombre: String
+    - precio: double
+    - material: Material
+    - descripcion: String
+    - cantidad: int
+}
+class Pista {
+    - nombre: String
+    - precio: double
+    - tipoPista: TipoPista
+    - tema: String
+    - revelada: boolean
+}
+class Recompensa {
+    - nombre: String
+    - precio: double
+    - descripcion: String
+    - stock: int
+}
+class Sala {
+    - nombre: String
+    - dificultad: Dificultad
+    - decoraciones: List<Decoracion>
+    - pistas: List<Pista>
+    + getPrecio(): double
+}
+
+ElementoInventario <|.. Decoracion
+ElementoInventario <|.. Pista
+ElementoInventario <|.. Recompensa
+ElementoInventario <|.. Sala
+
+Sala "1" *-- "0..*" Decoracion : contiene
+Sala "1" *-- "0..*" Pista : contiene
+
+Decoracion ..> Material
+Pista ..> TipoPista
+Sala ..> Dificultad
+Certificado ..> TipoLogro
+
+' --- Entidades de Jugador y Logros ---
+class Jugador {
+    - nombre: String
+    - id: String
+    - suscrito: boolean
+    - logros: List<Certificado>
+    - recompensas: List<Recompensa>
+    + addLogro(cert: Certificado): void
+    + update(mensaje: String): void
+}
+class Certificado {
+    - nombreJugador: String
+    - tipoLogro: TipoLogro
+    - tiempoObtenido: LocalDateTime
+    - nombreSala: String
+}
+class Ticket {
+    - ticketId: long
+    - nombreJugador: String
+    - precio: double
+    - tiempoCompra: LocalDateTime
+}
+
+Observador <|.. Jugador
+Jugador "1" -- "0..*" Recompensa : posee >
+Jugador "1" -- "0..*" Certificado : obtiene >
+
+' --- Servicios de Aplicación ---
+class ServicioInventario {
+  - pistas: List<Pista>
+  - decoraciones: List<Decoracion>
+  - recompensas: List<Recompensa>
+  + getCantidadesInventario()
+  + getValorTotalInventario()
+  + eliminarElemento()
+}
+
+class ServicioGestionEscapeRoom {
+  - servicioInventario: ServicioInventario
+  - salas: List<Sala>
+  + crearNuevoEscapeRoom()
+  + agregarSala()
+  + agregarPistaASala()
+  + agregarDecoracionASala()
+}
+
+class ServicioTicket {
+    - ticketsVendidos: List<Ticket>
+    + venderTicket(jugador: Jugador, precio: double): Ticket
+    + getIngresosTotales(): double
+}
+
+class ServicioLogro {
+    + evaluarLogro(jugador: Jugador, sala: Sala): Optional<Certificado>
+    + otorgarRecompensa(jugador: Jugador, recompensa: Recompensa): void
+}
+
+class ServicioNotificacion {
+    - observadores: List<Observador>
+    + notificarObservers(evento: String): void
+    + notifyRoomCompletion(nombreJugador: String, nombreSala: String): void
+}
+Sujeto <|.. ServicioNotificacion
+ServicioNotificacion "1" -- "0..*" Observador : notifica >
+
+' --- Coordinador Principal (GameSessionService) ---
+class ServicioSesionJuego {
+    - gestion: ServicioGestionEscapeRoom
+    - inventario: ServicioInventario
+    - ticket: ServicioTicket
+    - notificacion: ServicioNotificacion
+    - logro: ServicioLogro
+
+    + venderTicket(jugador: Jugador, precio: double): Ticket
+    + jugarSala(jugador: Jugador, sala: Sala): Certificado
+    + crearSala(nombre: String, dificultad: Dificultad): void
+}
+
+' --- Dependencias y Coordinación ---
+ServicioGestionEscapeRoom ..> ServicioInventario : usa
+ServicioSesionJuego ..> ServicioGestionEscapeRoom : coordina
+ServicioSesionJuego ..> ServicioInventario : coordina
+ServicioSesionJuego ..> ServicioTicket : coordina
+ServicioSesionJuego ..> ServicioNotificacion : coordina
+ServicioSesionJuego ..> ServicioLogro : coordina
+ServicioTicket "1" *-- "0..*" Ticket : gestiona >
+Jugador "1" <-- "0..*" Ticket : compra >
+ServicioGestionEscapeRoom "1" *-- "0..*" Sala : administra >
+ServicioSesionJuego ..> Sala : juega >
+ServicioSesionJuego ..> Jugador : juega >
+ServicioSesionJuego ..> Certificado : genera >
+
+@enduml
