@@ -1,9 +1,9 @@
 @startuml
-' Definición de la dirección del diagrama
+' Set direction
 left to right direction
 
 ' --- Enums ---
-enum Dificultad {
+enum Difficulty {
     EASY
     MEDIUM
     HARD
@@ -14,165 +14,201 @@ enum Material {
     PLASTIC
     TEXTILE
 }
-enum TipoPista {
+enum ClueType {
     TEXT
     PUZZLE
     VISUAL
 }
-enum TipoLogro {
+enum AchievementType {
     FIRST_TIME_SOLVER
     SPEED_RUN
     ALL_CLUES_FOUND
 }
 
-' --- Interfaces y Clases Base ---
-interface ElementoInventario {
-    + getNombre(): String
-    + getPrecio(): double
-    + getDescripcion(): String
-}
-interface Observador {
-    + getIdJugador(): String
-    + actualizar(mensaje: String): void
-}
-interface Sujeto {
-    + registrarObservador(o: Observador): void
-    + eliminarObservador(o: Observador): void
-    + notificarObservadores(evento: String): void
+' --- Inventory Interfaces and Base Classes ---
+interface InventoryItem {
+    + getName(): String
+    + getPrice(): Double
+    + getDescription(): String
+    + calculatePrice(): Double
 }
 
-' --- Entidades de Inventario ---
-class Decoracion {
-    - nombre: String
-    - precio: double
+interface Observer {
+    + getPlayerId(): String
+    + update(message: String): void
+}
+
+interface Subject {
+    + registerObserver(o: Observer): void
+    + removeObserver(o: Observer): void
+    + notifyObservers(event: String): void
+}
+
+abstract class Decoration {
+    - name: String
+    - price: double
     - material: Material
-    - descripcion: String
-    - cantidad: int
+    - description: String
+    - quantity: int
 }
-class Pista {
-    - nombre: String
-    - precio: double
-    - tipoPista: TipoPista
-    - tema: String
-    - revelada: boolean
+abstract class Clue {
+    - name: String
+    - price: double
+    - type: ClueType
+    - theme: String
+    - revealed: boolean
 }
-class Recompensa {
-    - nombre: String
-    - precio: double
-    - descripcion: String
+abstract class Reward {
+    - name: String
+    - price: double
+    - description: String
     - stock: int
 }
-class Sala {
-    - nombre: String
-    - dificultad: Dificultad
-    - decoraciones: List<Decoracion>
-    - pistas: List<Pista>
-    + getPrecio(): double
+
+InventoryItem <|.. Decoration
+InventoryItem <|.. Clue
+InventoryItem <|.. Reward
+
+' --- Room Class ---
+class Room {
+    - name: String
+    - difficulty: Difficulty
+    - InventoryItem: List<InventoryItem>
+    + getPrice(): double
 }
 
-ElementoInventario <|.. Decoracion
-ElementoInventario <|.. Pista
-ElementoInventario <|.. Recompensa
-ElementoInventario <|.. Sala
+Room "1" *-- "0..*" InventoryItem : contains
+Room ..> Difficulty
+Decoration ..> Material
+Clue ..> ClueType
 
-Sala "1" *-- "0..*" Decoracion : contiene
-Sala "1" *-- "0..*" Pista : contiene
-
-Decoracion ..> Material
-Pista ..> TipoPista
-Sala ..> Dificultad
-Certificado ..> TipoLogro
-
-' --- Entidades de Jugador y Logros ---
-class Jugador {
-    - nombre: String
+' --- Player, Achievements, Ticket ---
+class Player {
+    - name: String
     - id: String
-    - suscrito: boolean
-    - logros: List<Certificado>
-    - recompensas: List<Recompensa>
-    + addLogro(cert: Certificado): void
-    + update(mensaje: String): void
+    - subscribed: boolean
+    - achievements: List<Certificate>
+    - rewards: List<InventoryItem>
+    + addAchievement(cert: Certificate): void
+    + addReward(inventoryItem: InventoryItem): void
+    + update(message: String): void
 }
-class Certificado {
-    - nombreJugador: String
-    - tipoLogro: TipoLogro
-    - tiempoObtenido: LocalDateTime
-    - nombreSala: String
+class Certificate {
+    - playerName: String
+    - achievementType: AchievementType
+    - obtainedTime: LocalDateTime
+    - roomName: String
 }
 class Ticket {
     - ticketId: long
-    - nombreJugador: String
-    - precio: double
-    - tiempoCompra: LocalDateTime
+    - playerName: String
+    - price: Double
+    - purchaseTime: LocalDateTime
 }
 
-Observador <|.. Jugador
-Jugador "1" -- "0..*" Recompensa : posee >
-Jugador "1" -- "0..*" Certificado : obtiene >
+Observer <|.. Player
+Player "1" -- "0..*" Reward : owns >
+Player "1" -- "0..*" Certificate : obtains >
 
-' --- Servicios de Aplicación ---
-class ServicioInventario {
-  - pistas: List<Pista>
-  - decoraciones: List<Decoracion>
-  - recompensas: List<Recompensa>
-  + getCantidadesInventario()
-  + getValorTotalInventario()
-  + eliminarElemento()
+' --- Application Services ---
+class InventoryService {
+    - inventoryItems: List<InventoryItem>
+    + getInventoryQuantities()
+    + getTotalInventoryValue()
+    + removeItem()
 }
 
-class ServicioGestionEscapeRoom {
-  - servicioInventario: ServicioInventario
-  - salas: List<Sala>
-  + crearNuevoEscapeRoom()
-  + agregarSala()
-  + agregarPistaASala()
-  + agregarDecoracionASala()
+class EscapeRoomManagementService {
+    - builder: EscapeRoomBuilder
+    + createEscapeRoom() --> EscapeRoom
+    + addRoom()
+    + addInventoryItemToRoom()
 }
 
-class ServicioTicket {
-    - ticketsVendidos: List<Ticket>
-    + venderTicket(jugador: Jugador, precio: double): Ticket
-    + getIngresosTotales(): double
+class TicketService {
+    - soldTickets: List<Ticket>
+    + sellTicket(player: Player, price: double): Ticket
+    + getTotalRevenue(): double
 }
 
-class ServicioLogro {
-    + evaluarLogro(jugador: Jugador, sala: Sala): Optional<Certificado>
-    + otorgarRecompensa(jugador: Jugador, recompensa: Recompensa): void
+class PlayerService {
+    - players: List<Player>
+    + registerPlayer(name: String): Player
+    + getPlayer(id: String): Player
+    + evaluateAndGrantAchievement(player: Player, room: Room): Optional<Certificate>
+    + grantReward(player: Player, reward: Reward): void
+    + getPlayerProgress(playerId: String): String
+    + listAllPlayers(): List<Player>
 }
 
-class ServicioNotificacion {
-    - observadores: List<Observador>
-    + notificarObservers(evento: String): void
-    + notifyRoomCompletion(nombreJugador: String, nombreSala: String): void
+class NotificationService {
+    - observers: List<Observer>
+    + notifyObservers(event: String): void
+    + notifyRoomCompletion(playerName: String, roomName: String): void
 }
-Sujeto <|.. ServicioNotificacion
-ServicioNotificacion "1" -- "0..*" Observador : notifica >
+Subject <|.. NotificationService
+NotificationService "1" -- "0..*" Observer : notifies >
 
-' --- Coordinador Principal (GameSessionService) ---
-class ServicioSesionJuego {
-    - gestion: ServicioGestionEscapeRoom
-    - inventario: ServicioInventario
-    - ticket: ServicioTicket
-    - notificacion: ServicioNotificacion
-    - logro: ServicioLogro
-
-    + venderTicket(jugador: Jugador, precio: double): Ticket
-    + jugarSala(jugador: Jugador, sala: Sala): Certificado
-    + crearSala(nombre: String, dificultad: Dificultad): void
+' --- Game Session Coordinator ---
+class GameSessionService {
+    - management: EscapeRoomManagementService
+    - inventory: InventoryService
+    - ticket: TicketService
+    - notification: NotificationService
+    + start(): void
+    + sellTicket(player: Player, price: double): Ticket
+    + playRoom(player: Player, room: Room): Certificate
+    + createRoom(name: String, difficulty: Difficulty): void
 }
 
-' --- Dependencias y Coordinación ---
-ServicioGestionEscapeRoom ..> ServicioInventario : usa
-ServicioSesionJuego ..> ServicioGestionEscapeRoom : coordina
-ServicioSesionJuego ..> ServicioInventario : coordina
-ServicioSesionJuego ..> ServicioTicket : coordina
-ServicioSesionJuego ..> ServicioNotificacion : coordina
-ServicioSesionJuego ..> ServicioLogro : coordina
-ServicioTicket "1" *-- "0..*" Ticket : gestiona >
-Jugador "1" <-- "0..*" Ticket : compra >
-ServicioGestionEscapeRoom "1" *-- "0..*" Sala : administra >
-ServicioSesionJuego ..> Sala : juega >
-ServicioSesionJuego ..> Jugador : juega >
-ServicioSesionJuego ..> Certificado : genera >
+class EscapeRoomController {
+    - gameSessionService: GameSessionService
+    + startGame(): void
+}
+
+EscapeRoomController --> GameSessionService : calls
+GameSessionService ..> EscapeRoomManagementService : coordinates
+GameSessionService ..> InventoryService : coordinates
+GameSessionService ..> TicketService : coordinates
+GameSessionService ..> NotificationService : coordinates
+TicketService "1" *-- "0..*" Ticket : manages >
+Player "1" <-- "0..*" Ticket : buys >
+EscapeRoomManagementService "1" *-- "0..*" Room : manages >
+GameSessionService ..> Room : plays >
+GameSessionService ..> Player : plays >
+GameSessionService --> PlayerService : uses
+PlayerService "1" --> "0..*" Player : manages
+PlayerService ..> Certificate : generates
+PlayerService ..> Reward : grants
+
+' --- ESCAPE ROOM BUILDER PATTERN ---
+class EscapeRoom {
+    - name: String
+    - rooms: List<Room>
+    + calculateTotalPrice(): Double
+}
+
+interface EscapeRoomBuilder {
+    + setName(name: String): EscapeRoomBuilder
+    + addRoom(room: Room): EscapeRoomBuilder
+    + addInventoryItem(InventoryItem: inventoryItem): EscapeRoomBuilder
+    + build(): EscapeRoom
+}
+
+class StandardEscapeRoomBuilder implements EscapeRoomBuilder
+
+class EscapeRoomDirector {
+    - builder: EscapeRoomBuilder
+    + setBuilder(builder: EscapeRoomBuilder): void
+    + constructStandardRoom(): EscapeRoom
+}
+
+EscapeRoomManagementService --> EscapeRoomBuilder
+EscapeRoomBuilder --> EscapeRoom
+EscapeRoom *-- "0..*" Room : contains
+EscapeRoomDirector --> EscapeRoomBuilder : uses
+EscapeRoomBuilder --> EscapeRoom : builds
+AchievementService ..> Certificate : generates >
+Certificate ..> AchievementType : has >
 
 @enduml
