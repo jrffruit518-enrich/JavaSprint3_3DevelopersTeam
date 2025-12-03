@@ -45,6 +45,7 @@ interface Subject {
 }
 
 abstract class Decoration {
+    -ID: id
     - name: String
     - price: double
     - material: Material
@@ -52,6 +53,7 @@ abstract class Decoration {
     - quantity: int
 }
 abstract class Clue {
+    -id: ID
     - name: String
     - price: double
     - type: ClueType
@@ -59,6 +61,7 @@ abstract class Clue {
     - revealed: boolean
 }
 abstract class Reward {
+    -id:ID
     - name: String
     - price: double
     - description: String
@@ -70,7 +73,8 @@ InventoryItem <|.. Clue
 InventoryItem <|.. Reward
 
 ' --- Room Class ---
-class Room {
+abstract class Room {
+    -id:ID
     - name: String
     - difficulty: Difficulty
     - InventoryItem: List<InventoryItem>
@@ -94,12 +98,14 @@ class Player {
     + update(message: String): void
 }
 class Certificate {
+    -id:ID
     - playerName: String
     - achievementType: AchievementType
     - obtainedTime: LocalDateTime
     - roomName: String
 }
 class Ticket {
+    -id:ID
     - ticketId: long
     - playerName: String
     - price: Double
@@ -122,7 +128,8 @@ class EscapeRoomManagementService {
     - builder: EscapeRoomBuilder
     + createEscapeRoom() --> EscapeRoom
     + addRoom()
-    + addInventoryItemToRoom()
+    + addInventoryItemToRoom(DAO dao)
+
 }
 
 class TicketService {
@@ -195,7 +202,7 @@ interface EscapeRoomBuilder {
     + build(): EscapeRoom
 }
 
-class StandardEscapeRoomBuilder implements EscapeRoomBuilder
+abstract class StandardEscapeRoomBuilder implements EscapeRoomBuilder
 
 class EscapeRoomDirector {
     - builder: EscapeRoomBuilder
@@ -208,7 +215,6 @@ EscapeRoomBuilder --> EscapeRoom
 EscapeRoom *-- "0..*" Room : contains
 EscapeRoomDirector --> EscapeRoomBuilder : uses
 EscapeRoomBuilder --> EscapeRoom : builds
-AchievementService ..> Certificate : generates >
 Certificate ..> AchievementType : has >
 
 @enduml
