@@ -1,220 +1,143 @@
 @startuml
-' Set direction
 left to right direction
 
-' --- Enums ---
-enum Difficulty {
-    EASY
-    MEDIUM
-    HARD
-}
-enum Material {
-    WOOD
-    METAL
-    PLASTIC
-    TEXTILE
-}
-enum ClueType {
-    TEXT
-    PUZZLE
-    VISUAL
-}
-enum AchievementType {
-    FIRST_TIME_SOLVER
-    SPEED_RUN
-    ALL_CLUES_FOUND
+' ======== Entities / Beans ========
+class EscapeRoom {
+    -id: int
+    -name: String
+    -roomIds: List<Integer>
 }
 
-' --- Inventory Interfaces and Base Classes ---
-interface InventoryItem {
-    + getName(): String
-    + getPrice(): Double
-    + getDescription(): String
-    + calculatePrice(): Double
+class Room {
+    -id: int
+    -name: String
+    -difficulty: String
+    -clueIds: List<Integer>
+    -decorationIds: List<Integer>
 }
 
-interface Observer {
-    + getPlayerId(): String
-    + update(message: String): void
+class Clue {
+    -id: int
+    -name: String
+    -price: double
+    -theme: String
+    -reward: String
 }
 
-interface Subject {
-    + registerObserver(o: Observer): void
-    + removeObserver(o: Observer): void
-    + notifyObservers(event: String): void
+class Decoration {
+    -id: int
+    -name: String
+    -price: double
+    -material: String
+    -quantity: int
 }
 
-abstract class Decoration {
-    -ID: id
-    - name: String
-    - price: double
-    - material: Material
-    - description: String
-    - quantity: int
-}
-abstract class Clue {
-    -id: ID
-    - name: String
-    - price: double
-    - type: ClueType
-    - theme: String
-    - revealed: boolean
-}
-abstract class Reward {
-    -id:ID
-    - name: String
-    - price: double
-    - description: String
-    - stock: int
-}
-
-InventoryItem <|.. Decoration
-InventoryItem <|.. Clue
-InventoryItem <|.. Reward
-
-' --- Room Class ---
-abstract class Room {
-    -id:ID
-    - name: String
-    - difficulty: Difficulty
-    - InventoryItem: List<InventoryItem>
-    + getPrice(): double
-}
-
-Room "1" *-- "0..*" InventoryItem : contains
-Room ..> Difficulty
-Decoration ..> Material
-Clue ..> ClueType
-
-' --- Player, Achievements, Ticket ---
 class Player {
-    - name: String
-    - id: String
-    - subscribed: boolean
-    - achievements: List<Certificate>
-    - rewards: List<InventoryItem>
-    + addAchievement(cert: Certificate): void
-    + addReward(inventoryItem: InventoryItem): void
-    + update(message: String): void
+    -id: int
+    -name: String
 }
+
 class Certificate {
-    -id:ID
-    - playerName: String
-    - achievementType: AchievementType
-    - obtainedTime: LocalDateTime
-    - roomName: String
+    -id: int
+    -playerId: int
+    -roomId: int
+    -achievement: String
 }
+
 class Ticket {
-    -id:ID
-    - ticketId: long
-    - playerName: String
-    - price: Double
-    - purchaseTime: LocalDateTime
+    -id: int
+    -playerId: int
+    -price: double
+    -purchaseTime: LocalDateTime
 }
 
-Observer <|.. Player
-Player "1" -- "0..*" Reward : owns >
-Player "1" -- "0..*" Certificate : obtains >
 
-' --- Application Services ---
-class InventoryService {
-    - inventoryItems: List<InventoryItem>
-    + getInventoryQuantities()
-    + getTotalInventoryValue()
-    + removeItem()
+' ======== DAO Interfaces ========
+interface EscapeRoomDAO
+interface RoomDAO
+interface ClueDAO
+interface DecorationDAO
+interface PlayerDAO
+interface CertificateDAO
+interface TicketDAO
+
+' ======== DAO Implementations ========
+class EscapeRoomDAOImpl
+class RoomDAOImpl
+class ClueDAOImpl
+class DecorationDAOImpl
+class PlayerDAOImpl
+class CertificateDAOImpl
+class TicketDAOImpl
+
+EscapeRoomDAO <|.. EscapeRoomDAOImpl
+RoomDAO <|.. RoomDAOImpl
+ClueDAO <|.. ClueDAOImpl
+DecorationDAO <|.. DecorationDAOImpl
+PlayerDAO <|.. PlayerDAOImpl
+CertificateDAO <|.. CertificateDAOImpl
+TicketDAO <|.. TicketDAOImpl
+
+
+' ======== Inventario 接口 ========
+interface Inventario {
+    + getTotalValue(): double
+    + getInventoryList(): List<String>
 }
 
-class EscapeRoomManagementService {
-    - builder: EscapeRoomBuilder
-    + createEscapeRoom() --> EscapeRoom
-    + addRoom()
-    + addInventoryItemToRoom(DAO dao)
+class InventarioService
 
-}
+' ======== Services (依赖 DAO 接口) ========
+class EscapeRoomService
+class RoomService
+class ClueService
+class DecorationService
+class PlayerService
+class CertificateService
+class TicketService
+class NotificationService
 
-class TicketService {
-    - soldTickets: List<Ticket>
-    + sellTicket(player: Player, price: double): Ticket
-    + getTotalRevenue(): double
-}
+EscapeRoomService --> EscapeRoomDAO
+RoomService --> RoomDAO
+ClueService --> ClueDAO
+DecorationService --> DecorationDAO
+PlayerService --> PlayerDAO
+CertificateService --> CertificateDAO
+TicketService --> TicketDAO
 
-class PlayerService {
-    - players: List<Player>
-    + registerPlayer(name: String): Player
-    + getPlayer(id: String): Player
-    + evaluateAndGrantAchievement(player: Player, room: Room): Optional<Certificate>
-    + grantReward(player: Player, reward: Reward): void
-    + getPlayerProgress(playerId: String): String
-    + listAllPlayers(): List<Player>
-}
+InventarioService --> Inventario
+InventarioService --> RoomService
+InventarioService --> ClueService
+InventarioService --> DecorationService
 
-class NotificationService {
-    - observers: List<Observer>
-    + notifyObservers(event: String): void
-    + notifyRoomCompletion(playerName: String, roomName: String): void
-}
-Subject <|.. NotificationService
-NotificationService "1" -- "0..*" Observer : notifies >
 
-' --- Game Session Coordinator ---
-class GameSessionService {
-    - management: EscapeRoomManagementService
-    - inventory: InventoryService
-    - ticket: TicketService
-    - notification: NotificationService
-    + start(): void
-    + sellTicket(player: Player, price: double): Ticket
-    + playRoom(player: Player, room: Room): Certificate
-    + createRoom(name: String, difficulty: Difficulty): void
+' ======== Menu & Controller ========
+class Menu {
+    + showMainMenu(): void
 }
 
 class EscapeRoomController {
-    - gameSessionService: GameSessionService
-    + startGame(): void
+    + run(): void
 }
 
-EscapeRoomController --> GameSessionService : calls
-GameSessionService ..> EscapeRoomManagementService : coordinates
-GameSessionService ..> InventoryService : coordinates
-GameSessionService ..> TicketService : coordinates
-GameSessionService ..> NotificationService : coordinates
-TicketService "1" *-- "0..*" Ticket : manages >
-Player "1" <-- "0..*" Ticket : buys >
-EscapeRoomManagementService "1" *-- "0..*" Room : manages >
-GameSessionService ..> Room : plays >
-GameSessionService ..> Player : plays >
-GameSessionService --> PlayerService : uses
-PlayerService "1" --> "0..*" Player : manages
-PlayerService ..> Certificate : generates
-PlayerService ..> Reward : grants
+Menu --> EscapeRoomService
+Menu --> RoomService
+Menu --> ClueService
+Menu --> DecorationService
+Menu --> PlayerService
+Menu --> CertificateService
+Menu --> TicketService
+Menu --> NotificationService
+Menu --> InventarioService
 
-' --- ESCAPE ROOM BUILDER PATTERN ---
-class EscapeRoom {
-    - name: String
-    - rooms: List<Room>
-    + calculateTotalPrice(): Double
-}
+EscapeRoomController --> Menu
 
-interface EscapeRoomBuilder {
-    + setName(name: String): EscapeRoomBuilder
-    + addRoom(room: Room): EscapeRoomBuilder
-    + addInventoryItem(InventoryItem: inventoryItem): EscapeRoomBuilder
-    + build(): EscapeRoom
-}
 
-abstract class StandardEscapeRoomBuilder implements EscapeRoomBuilder
-
-class EscapeRoomDirector {
-    - builder: EscapeRoomBuilder
-    + setBuilder(builder: EscapeRoomBuilder): void
-    + constructStandardRoom(): EscapeRoom
-}
-
-EscapeRoomManagementService --> EscapeRoomBuilder
-EscapeRoomBuilder --> EscapeRoom
-EscapeRoom *-- "0..*" Room : contains
-EscapeRoomDirector --> EscapeRoomBuilder : uses
-EscapeRoomBuilder --> EscapeRoom : builds
-Certificate ..> AchievementType : has >
+' ======== Relationships ========
+EscapeRoom o-- Room : contains >
+Room o-- Clue : contains >
+Room o-- Decoration : contains >
+Player "1" -- "0..*" Ticket
+Player "1" -- "0..*" Certificate
 
 @enduml
