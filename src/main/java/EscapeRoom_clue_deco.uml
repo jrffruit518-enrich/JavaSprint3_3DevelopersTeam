@@ -28,9 +28,8 @@ enum AchievementType {
 ' --- Inventory Interfaces and Base Classes ---
 interface InventoryItem {
     + getName(): String
-    + getPrice(): Double
+    + getPrice(): double
     + getDescription(): String
-    + calculatePrice(): Double
 }
 
 interface Observer {
@@ -45,7 +44,6 @@ interface Subject {
 }
 
 abstract class Decoration {
-    -ID: id
     - name: String
     - price: double
     - material: Material
@@ -53,7 +51,6 @@ abstract class Decoration {
     - quantity: int
 }
 abstract class Clue {
-    -id: ID
     - name: String
     - price: double
     - type: ClueType
@@ -61,7 +58,6 @@ abstract class Clue {
     - revealed: boolean
 }
 abstract class Reward {
-    -id:ID
     - name: String
     - price: double
     - description: String
@@ -73,15 +69,15 @@ InventoryItem <|.. Clue
 InventoryItem <|.. Reward
 
 ' --- Room Class ---
-abstract class Room {
-    -id:ID
+class Room {
     - name: String
     - difficulty: Difficulty
     - InventoryItem: List<InventoryItem>
     + getPrice(): double
 }
 
-Room "1" *-- "0..*" InventoryItem : contains
+Room "1" *-- "0..*" Decoration : contains
+Room "1" *-- "0..*" Clue : contains
 Room ..> Difficulty
 Decoration ..> Material
 Clue ..> ClueType
@@ -92,23 +88,20 @@ class Player {
     - id: String
     - subscribed: boolean
     - achievements: List<Certificate>
-    - rewards: List<InventoryItem>
+    - rewards: List<Reward>
     + addAchievement(cert: Certificate): void
-    + addReward(inventoryItem: InventoryItem): void
     + update(message: String): void
 }
 class Certificate {
-    -id:ID
     - playerName: String
     - achievementType: AchievementType
     - obtainedTime: LocalDateTime
     - roomName: String
 }
 class Ticket {
-    -id:ID
     - ticketId: long
     - playerName: String
-    - price: Double
+    - price: double
     - purchaseTime: LocalDateTime
 }
 
@@ -128,8 +121,8 @@ class EscapeRoomManagementService {
     - builder: EscapeRoomBuilder
     + createEscapeRoom() --> EscapeRoom
     + addRoom()
-    + addInventoryItemToRoom(DAO dao)
-
+    + addClueToRoom()
+    + addDecorationToRoom()
 }
 
 class TicketService {
@@ -138,14 +131,9 @@ class TicketService {
     + getTotalRevenue(): double
 }
 
-class PlayerService {
-    - players: List<Player>
-    + registerPlayer(name: String): Player
-    + getPlayer(id: String): Player
-    + evaluateAndGrantAchievement(player: Player, room: Room): Optional<Certificate>
+class AchievementService {
+    + evaluateAchievement(player: Player, room: Room): Optional<Certificate>
     + grantReward(player: Player, reward: Reward): void
-    + getPlayerProgress(playerId: String): String
-    + listAllPlayers(): List<Player>
 }
 
 class NotificationService {
@@ -162,6 +150,7 @@ class GameSessionService {
     - inventory: InventoryService
     - ticket: TicketService
     - notification: NotificationService
+    - achievement: AchievementService
     + start(): void
     + sellTicket(player: Player, price: double): Ticket
     + playRoom(player: Player, room: Room): Certificate
@@ -178,31 +167,32 @@ GameSessionService ..> EscapeRoomManagementService : coordinates
 GameSessionService ..> InventoryService : coordinates
 GameSessionService ..> TicketService : coordinates
 GameSessionService ..> NotificationService : coordinates
+GameSessionService ..> AchievementService : coordinates
 TicketService "1" *-- "0..*" Ticket : manages >
 Player "1" <-- "0..*" Ticket : buys >
 EscapeRoomManagementService "1" *-- "0..*" Room : manages >
 GameSessionService ..> Room : plays >
 GameSessionService ..> Player : plays >
-GameSessionService --> PlayerService : uses
-PlayerService "1" --> "0..*" Player : manages
-PlayerService ..> Certificate : generates
-PlayerService ..> Reward : grants
+GameSessionService ..> Certificate : generates >
 
 ' --- ESCAPE ROOM BUILDER PATTERN ---
 class EscapeRoom {
     - name: String
     - rooms: List<Room>
-    + calculateTotalPrice(): Double
+    - clues: List<Clue>
+    - decorations: List<Decoration>
+    + getTotalPrice(): double
 }
 
 interface EscapeRoomBuilder {
     + setName(name: String): EscapeRoomBuilder
     + addRoom(room: Room): EscapeRoomBuilder
-    + addInventoryItem(InventoryItem: inventoryItem): EscapeRoomBuilder
+    + addClue(clue: Clue): EscapeRoomBuilder
+    + addDecoration(decoration: Decoration): EscapeRoomBuilder
     + build(): EscapeRoom
 }
 
-abstract class StandardEscapeRoomBuilder implements EscapeRoomBuilder
+class StandardEscapeRoomBuilder implements EscapeRoomBuilder
 
 class EscapeRoomDirector {
     - builder: EscapeRoomBuilder
@@ -213,8 +203,11 @@ class EscapeRoomDirector {
 EscapeRoomManagementService --> EscapeRoomBuilder
 EscapeRoomBuilder --> EscapeRoom
 EscapeRoom *-- "0..*" Room : contains
+EscapeRoom *-- "0..*" Clue : contains
+EscapeRoom *-- "0..*" Decoration : contains
 EscapeRoomDirector --> EscapeRoomBuilder : uses
 EscapeRoomBuilder --> EscapeRoom : builds
+AchievementService ..> Certificate : generates >
 Certificate ..> AchievementType : has >
 
 @enduml
