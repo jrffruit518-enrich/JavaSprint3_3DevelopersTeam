@@ -2,13 +2,20 @@
 left to right direction
 
 ' ======== Entities / Beans ========
+
+interface Inventory {
+    + getId(): int
+    + getName(): String
+    + getPrice(): double
+}
+
 class EscapeRoom {
     -id: int
     -name: String
     -roomIds: List<Integer>
 }
 
-class Room {
+class Room implements Inventory {
     -id: int
     -name: String
     -difficulty: String
@@ -16,7 +23,7 @@ class Room {
     -decorationIds: List<Integer>
 }
 
-class Clue {
+class Clue implements Inventory {
     -id: int
     -name: String
     -price: double
@@ -24,7 +31,7 @@ class Clue {
     -reward: String
 }
 
-class Decoration {
+class Decoration implements Inventory {
     -id: int
     -name: String
     -price: double
@@ -79,7 +86,12 @@ CertificateDAO <|.. CertificateDAOImpl
 TicketDAO <|.. TicketDAOImpl
 
 
-' ======== Services (依赖 DAO 接口) ========
+' ======== Services ========
+interface InventoryService {
+    + findById(id: int): Inventory
+    + listAll(): List<Inventory>
+}
+
 class EscapeRoomService
 class RoomService
 class ClueService
@@ -89,6 +101,9 @@ class CertificateService
 class TicketService
 class NotificationService
 
+RoomService --> InventoryService
+ClueService --> InventoryService
+DecorationService --> InventoryService
 
 EscapeRoomService --> EscapeRoomDAO
 RoomService --> RoomDAO
