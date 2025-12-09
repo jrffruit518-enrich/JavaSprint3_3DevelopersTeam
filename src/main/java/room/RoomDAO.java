@@ -1,4 +1,5 @@
 package room;
+import DataBaseConnection.MySQL_Data_Base_Connection;
 import common.dao.CrudDao;
 import common.valueobject.*;
 import java.util.List;
@@ -6,10 +7,16 @@ import java.util.Optional;
 
 public class RoomDAO implements CrudDao {
 
+private MySQL_Data_Base_Connection connection;
 
+    public RoomDAO() {
+        connection = MySQL_Data_Base_Connection.getInstance();
+    }
 
     @Override
     public void save(Object entity) {
+        String sql = "insert into "
+
 
     }
 
