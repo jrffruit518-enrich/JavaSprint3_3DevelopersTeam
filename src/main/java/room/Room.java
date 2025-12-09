@@ -3,38 +3,46 @@ import java.math.BigDecimal;
 import java.util.*;
 
 public class Room {
-    private Integer idRoom;  // ID de la sala, generado automáticamente por la base de datos
+    private Integer roomId;  // ID de la sala, generado automáticamente por la base de datos
     private String name;     // Nombre de la sala
     private Difficulty difficulty; // Nivel de dificultad de la sala
-    private BigDecimal price;      // Precio de la sala
+    private BigDecimal price;// Precio de la sala
+    private int themeId;
 
     // ===== Constructor 1: crear nueva sala (sin id, será generado por la base de datos) =====
-    public Room(String name, Difficulty difficulty, BigDecimal price) {
+    public Room(String name, Difficulty difficulty, BigDecimal price,int themeId) {
         this.name = name;
         this.difficulty = difficulty;
         // Si el precio es null, asignar valor por defecto 0
         this.price = (price != null) ? price : BigDecimal.ZERO;
+        this.themeId = themeId;
     }
 
     // ===== Constructor 2: cargar sala desde la base de datos (con id) =====
-    public Room(Integer idRoom, String name, Difficulty difficulty, BigDecimal price) {
-        this.idRoom = idRoom;
+    public Room(Integer roomId, String name, Difficulty difficulty, BigDecimal price,int themeId) {
+        this.roomId = roomId;
         this.name = name;
         this.difficulty = difficulty;
         // Si el precio es null, asignar valor por defecto 0
         this.price = (price != null) ? price : BigDecimal.ZERO;
+        this.themeId = themeId;
     }
+
 
     public String getName() {
         return name;
     }
 
-    public Integer getIdRoom() {
-        return idRoom;
+    public Integer getRoomId() {
+        return roomId
+                ;
     }
 
-    public void setIdRoom(Integer idRoom) {
-        this.idRoom = idRoom;
+    public void setRoomId(Integer roomId
+    ) {
+        this.roomId
+                = roomId
+        ;
     }
 
     public Difficulty getDifficulty() {
@@ -45,24 +53,32 @@ public class Room {
         return price;
     }
 
+    public int getThemeId() {
+        return themeId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Room room = (Room) o;
-        return Objects.equals(idRoom, room.idRoom);}
+        return Objects.equals(roomId
+                , room.roomId
+        );}
 
     @Override
     public int hashCode() {
-        return Objects.hash(idRoom);
+        return Objects.hash(roomId
+        );
     }
 
     @Override
     public String toString() {
         return "Room{" +
-                "name='" + name + '\'' +
-                ", idRoom=" + idRoom +
+                "roomId=" + roomId +
+                ", name='" + name + '\'' +
                 ", difficulty=" + difficulty +
                 ", price=" + price +
+                ", themeId=" + themeId +
                 '}';
     }
 }
