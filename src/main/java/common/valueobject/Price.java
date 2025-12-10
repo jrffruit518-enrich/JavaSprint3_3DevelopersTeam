@@ -1,4 +1,4 @@
-package org.s3team.common.valueobject;
+package common.valueobject;
 
 import java.math.BigDecimal;
 

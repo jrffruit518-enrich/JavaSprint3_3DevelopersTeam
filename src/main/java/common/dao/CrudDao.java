@@ -1,7 +1,9 @@
 package common.dao;
 
 import common.valueobject.Id;
+import common.valueobject.Price;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,5 +18,9 @@ public interface CrudDao<T> {
     boolean update(T entity);
 
     boolean delete(Id<T> id);
+
+    int count();
+
+    Price calculateTotalPrice();
 }
 

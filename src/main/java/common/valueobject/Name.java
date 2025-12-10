@@ -1,4 +1,4 @@
-package org.s3team.common.valueobject;
+package common.valueobject;
 
 public record Name(String value) {
     public Name {

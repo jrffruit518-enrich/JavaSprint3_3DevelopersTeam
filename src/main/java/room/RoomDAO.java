@@ -3,7 +3,10 @@ package room;
 import DataBaseConnection.MySQL_Data_Base_Connection;
 import common.dao.CrudDao;
 import common.valueobject.Id;
+import common.valueobject.Name;
+import common.valueobject.Price;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,12 +23,12 @@ public class RoomDAO implements CrudDao<Room> {
 
     @Override
     public void save(Room room) {
-        String sql = "insert into room(name,difficulty,price,theme_id)values(?,?,?,?)";
+        final String sql = "insert into room(name,difficulty,price,theme_id)values(?,?,?,?)";
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, room.getName());
+            ps.setString(1, room.getName().value());
             ps.setString(2, room.getDifficulty().toString());
-            ps.setBigDecimal(3, room.getPrice());
-            ps.setInt(4, room.getThemeId());
+            ps.setBigDecimal(3, room.getPrice().value());
+            ps.setInt(4, room.getThemeId().value());
             int affectedRows = ps.executeUpdate();
             if (affectedRows == 0) {
                 throw new RuntimeException("Database error: Room creation failed, no rows affected.");
@@ -33,7 +36,8 @@ public class RoomDAO implements CrudDao<Room> {
             //El siguiente código asigna directamente el ID generado por MySQL al objeto para facilitar las consultas por ID.
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    Integer newId = generatedKeys.getInt(1);
+                    int newIdValue = generatedKeys.getInt(1);
+                    Id<Room> newId = new Id<>(newIdValue);
                     room.setRoomId(newId);
                 } else {
                     throw new RuntimeException("Room saved but failed to retrieve generated ID.");
@@ -41,27 +45,33 @@ public class RoomDAO implements CrudDao<Room> {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new RuntimeException("Database error saving Room: " + e.getMessage(), e);
+            throw new RuntimeException("Database error saving Room: " + room.getName(), e);
         }
     }
 
     @Override
-    public Optional findById(Id id) {
-        final String SQL = "SELECT room_id, name, difficulty, price, theme_id FROM rooms WHERE room_id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(SQL)) {
+    public Optional<Room> findById(Id<Room> id) {
+        final String SQL = "SELECT id_room, name, difficulty, price, theme_id FROM room WHERE id_room = ?";
+        int roomIdValue = id.value();
+        try (PreparedStatement ps = connection.prepareStatement(SQL)) {
+            ps.setInt(1, roomIdValue);
 
-            int roomId = id.value();
-            try (ResultSet rs = stmt.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
 
                 if (rs.next()) {
-                    Room room = new Room();
-
-                    room.setRoomId(rs.getInt("room_id"));
-                    room.setName(rs.getString("name"));
+                    Id<Room> foundRoomId = new Id<>(rs.getInt("id_room"));
+                    Name name = new Name(rs.getString("name"));
                     String difficultyString = rs.getString("difficulty");
-                    room.setDifficulty(Difficulty.valueOf(difficultyString.toUpperCase()));
-                    room.setPrice(rs.getBigDecimal("price"));
-                    room.setThemeId(rs.getInt("theme_id"));
+                    Difficulty difficulty = Difficulty.valueOf(difficultyString.toUpperCase());
+                    Price price = new Price(rs.getBigDecimal("price"));
+                    Id<Theme> themeId = new Id<>(rs.getInt("theme_id"));
+                    Room room = Room.rehydrate(
+                            foundRoomId,
+                            name,
+                            difficulty,
+                            price,
+                            themeId
+                    );
 
                     return Optional.of(room);
                 }
@@ -75,66 +85,50 @@ public class RoomDAO implements CrudDao<Room> {
 
     @Override
     public List findAll() {
-        final String SQL = "SELECT room_id, name, difficulty, price, theme_id FROM rooms";
+        final String SQL = "SELECT id_room, name, difficulty, price, theme_id FROM room";
 
         List<Room> rooms = new ArrayList<>();
 
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(SQL)) { // 执行查询
-
-            // 3. 遍历结果集
+        try (PreparedStatement ps = connection.prepareStatement(SQL);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                // 4. 将每一行记录映射成一个 Room 对象
-                Room room = new Room();
-
-                // 设置基本属性
-                room.setRoomId(rs.getInt("room_id"));
-                room.setName(rs.getString("name"));
-
-                // 处理 Difficulty 枚举类型
+                Id<Room> foundRoomId = new Id<>(rs.getInt("id_room"));
+                Name name = new Name(rs.getString("name"));
                 String difficultyString = rs.getString("difficulty");
-                try {
-                    // 假设 Difficulty 是枚举，且数据库存储的是其名称字符串
-                    room.setDifficulty(Difficulty.valueOf(difficultyString.toUpperCase()));
-                } catch (IllegalArgumentException e) {
-                    // 处理数据库中存储的 difficulty 值无效的情况
-                    System.err.println("Warning: Invalid difficulty value in DB for room ID " + room.getRoomId() + ": " + difficultyString);
-                    // 可以选择跳过此记录、设置默认值或抛出更上层的异常
-                    continue;
-                }
-
-                // 设置价格和主题ID
-                room.setPrice(rs.getBigDecimal("price"));
-                room.setThemeId(rs.getInt("theme_id"));
-
-                // 5. 将 Room 对象添加到列表中
+                Difficulty difficulty = Difficulty.valueOf(difficultyString.toUpperCase());
+                Price price = new Price(rs.getBigDecimal("price"));
+                Id<Theme> themeId = new Id<>(rs.getInt("theme_id"));
+                Room room = Room.rehydrate(
+                        foundRoomId,
+                        name,
+                        difficulty,
+                        price,
+                        themeId
+                );
                 rooms.add(room);
             }
 
         } catch (SQLException e) {
-            // 6. 异常处理：打印错误并返回空列表或抛出运行时异常
             System.err.println("Database error occurred while finding all Rooms: " + e.getMessage());
             e.printStackTrace();
-            // 在实际应用中，通常会抛出 DataAccessException 或 RuntimeException
             return new ArrayList<>();
         }
-
-        // 7. 返回填充好的列表
         return rooms;
     }
 
     @Override
     public boolean update(Room room) {
-        String sql = "UPDATE room SET name = ?, difficulty = ?, price = ?, theme_id = ? WHERE id_room = ?";
+        final String sql = "UPDATE room SET name = ?, difficulty = ?, price = ?, theme_id = ? WHERE id_room = ?";
         if (room.getRoomId() == null) {
             throw new IllegalArgumentException("Cannot update Room: ID is missing.");
         }
+        int roomIdValue = room.getRoomId().value();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, room.getName());
+            ps.setString(1, room.getName().value());
             ps.setString(2, room.getDifficulty().toString());
-            ps.setBigDecimal(3, room.getPrice());
-            ps.setInt(4, room.getThemeId());
-            ps.setInt(5, room.getRoomId());
+            ps.setBigDecimal(3, room.getPrice().value());
+            ps.setInt(4, room.getThemeId().value());
+            ps.setInt(5, roomIdValue);
             int affectedRows = ps.executeUpdate();
             return affectedRows > 0;
         } catch (SQLException e) {
@@ -144,9 +138,9 @@ public class RoomDAO implements CrudDao<Room> {
     }
 
     @Override
-    public boolean delete(Id id) {
+    public boolean delete(Id<Room> id) {
         int roomId = id.value();
-        String sql = "DELETE FROM room WHERE id_room = ?";
+        final String sql = "DELETE FROM room WHERE id_room = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, roomId);
             int affectedRows = ps.executeUpdate();
@@ -156,5 +150,41 @@ public class RoomDAO implements CrudDao<Room> {
             e.printStackTrace();
             throw new RuntimeException("Database error deleting Room with ID: " + roomId, e);
         }
+    }
+
+    @Override
+    public int count() {
+        final String sql = "SELECT COUNT(*) FROM room";
+        int count = 0;
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Database error counting Rooms.", e);
+        }
+        return count;
+    }
+
+    @Override
+    public Price calculateTotalPrice() {
+        final String sql = "SELECT SUM(price) FROM room";
+        Price totalPrice = new Price(BigDecimal.ZERO);
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                BigDecimal sumResult = rs.getBigDecimal(1);
+                if (sumResult != null) {
+                    totalPrice = new Price(sumResult);
+                }
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Database error calculating total Room price.", e);
+        }
+        return totalPrice;
     }
 }
