@@ -10,6 +10,9 @@ public class Room {
     private BigDecimal price;// Precio de la sala
     private int themeId;
 
+    public Room() {
+    }
+
     // ===== Constructor 1: crear nueva sala (sin id, será generado por la base de datos) =====
     public Room(String name, Difficulty difficulty, BigDecimal price, int themeId) {
         this.name = name;
