@@ -3,24 +3,23 @@ package room;
 import common.valueobject.Id;
 import common.valueobject.Price;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 public class RoomService {
-    private RoomDAO roomDAO;
+    private RoomDAOImp roomDAOImp;
 
-    public RoomService(RoomDAO roomDAO) {
-        this.roomDAO = roomDAO;
+    public RoomService(RoomDAOImp roomDAOImp) {
+        this.roomDAOImp = roomDAOImp;
     }
 
     public void save(Room room) {
-        roomDAO.save(room);
+        roomDAOImp.save(room);
 
     }
 
     public Room findById(Id id) {
-        Optional<Room> roomOptional = roomDAO.findById(id);
+        Optional<Room> roomOptional = roomDAOImp.findById(id);
 
         return roomOptional.orElseThrow(
                 () -> new RuntimeException("Room with ID " + id.value() + " not found.")
@@ -28,27 +27,27 @@ public class RoomService {
     }
 
     public List findAll() {
-        return roomDAO.findAll();
+        return roomDAOImp.findAll();
     }
 
     public boolean update(Room room) {
-        if (roomDAO.findById(room.getRoomId()).isEmpty()) {
+        if (roomDAOImp.findById(room.getRoomId()).isEmpty()) {
             return false;
         }
-        return roomDAO.update(room);
+        return roomDAOImp.update(room);
     }
 
     public boolean delete(Id id) {
-        return roomDAO.delete(id);
+        return roomDAOImp.delete(id);
     }
 
     public int count() {
-        return roomDAO.count();
+        return roomDAOImp.count();
 
     }
 
     public Price calculateTotalPrice() {
-        return roomDAO.calculateTotalPrice();
+        return roomDAOImp.calculateTotalPrice();
     }
 
 }

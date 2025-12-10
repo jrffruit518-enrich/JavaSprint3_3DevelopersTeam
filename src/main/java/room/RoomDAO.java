@@ -1,190 +1,52 @@
 package room;
 
-import DataBaseConnection.MySQL_Data_Base_Connection;
 import common.dao.CrudDao;
 import common.valueobject.Id;
-import common.valueobject.Name;
 import common.valueobject.Price;
 
-import java.math.BigDecimal;
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class RoomDAO implements CrudDao<Room> {
-
-    private final Connection connection;
-
-    public RoomDAO() {
-        connection = MySQL_Data_Base_Connection.getInstance().getConnection();
-    }
-
-
+/**
+ * ClassName: RoomDAO
+ * Package: room
+ * Description:
+ * Author: Rong Jiang
+ * Create:10/12/2025 - 21:59
+ * Version:v1.0
+ *
+ */
+public interface RoomDAO extends CrudDao<Room> {
     @Override
-    public void save(Room room) {
-        final String sql = "insert into room(name,difficulty,price,theme_id)values(?,?,?,?)";
-        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, room.getName().value());
-            ps.setString(2, room.getDifficulty().toString());
-            ps.setBigDecimal(3, room.getPrice().value());
-            ps.setInt(4, room.getThemeId().value());
-            int affectedRows = ps.executeUpdate();
-            if (affectedRows == 0) {
-                throw new RuntimeException("Database error: Room creation failed, no rows affected.");
-            }
-            //El siguiente código asigna directamente el ID generado por MySQL al objeto para facilitar las consultas por ID.
-            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    int newIdValue = generatedKeys.getInt(1);
-                    Id<Room> newId = new Id<>(newIdValue);
-                    room.setRoomId(newId);
-                } else {
-                    throw new RuntimeException("Room saved but failed to retrieve generated ID.");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Database error saving Room: " + room.getName(), e);
-        }
+    default void save(Room entity) {
+
     }
 
     @Override
-    public Optional<Room> findById(Id<Room> id) {
-        final String SQL = "SELECT id_room, name, difficulty, price, theme_id FROM room WHERE id_room = ?";
-        int roomIdValue = id.value();
-        try (PreparedStatement ps = connection.prepareStatement(SQL)) {
-            ps.setInt(1, roomIdValue);
-
-            try (ResultSet rs = ps.executeQuery()) {
-
-                if (rs.next()) {
-                    Id<Room> foundRoomId = new Id<>(rs.getInt("id_room"));
-                    Name name = new Name(rs.getString("name"));
-                    String difficultyString = rs.getString("difficulty");
-                    Difficulty difficulty = Difficulty.valueOf(difficultyString.toUpperCase());
-                    Price price = new Price(rs.getBigDecimal("price"));
-                    Id<Theme> themeId = new Id<>(rs.getInt("theme_id"));
-                    Room room = Room.rehydrate(
-                            foundRoomId,
-                            name,
-                            difficulty,
-                            price,
-                            themeId
-                    );
-
-                    return Optional.of(room);
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Database error occurred while finding Room by ID: " + id);
-            e.printStackTrace();
-        }
+    default Optional<Room> findById(Id<Room> id) {
         return Optional.empty();
     }
 
     @Override
-    public List findAll() {
-        final String SQL = "SELECT id_room, name, difficulty, price, theme_id FROM room";
-
-        List<Room> rooms = new ArrayList<>();
-
-        try (PreparedStatement ps = connection.prepareStatement(SQL);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Id<Room> foundRoomId = new Id<>(rs.getInt("id_room"));
-                Name name = new Name(rs.getString("name"));
-                String difficultyString = rs.getString("difficulty");
-                Difficulty difficulty = Difficulty.valueOf(difficultyString.toUpperCase());
-                Price price = new Price(rs.getBigDecimal("price"));
-                Id<Theme> themeId = new Id<>(rs.getInt("theme_id"));
-                Room room = Room.rehydrate(
-                        foundRoomId,
-                        name,
-                        difficulty,
-                        price,
-                        themeId
-                );
-                rooms.add(room);
-            }
-
-        } catch (SQLException e) {
-            System.err.println("Database error occurred while finding all Rooms: " + e.getMessage());
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
-        return rooms;
+    default List<Room> findAll() {
+        return List.of();
     }
 
     @Override
-    public boolean update(Room room) {
-        final String sql = "UPDATE room SET name = ?, difficulty = ?, price = ?, theme_id = ? WHERE id_room = ?";
-        if (room.getRoomId() == null) {
-            throw new IllegalArgumentException("Cannot update Room: ID is missing.");
-        }
-        int roomIdValue = room.getRoomId().value();
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, room.getName().value());
-            ps.setString(2, room.getDifficulty().toString());
-            ps.setBigDecimal(3, room.getPrice().value());
-            ps.setInt(4, room.getThemeId().value());
-            ps.setInt(5, roomIdValue);
-            int affectedRows = ps.executeUpdate();
-            return affectedRows > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Database error updating Room: " + room.getName(), e);
-        }
+    default boolean update(Room entity) {
+        return false;
     }
 
     @Override
-    public boolean delete(Id<Room> id) {
-        int roomId = id.value();
-        final String sql = "DELETE FROM room WHERE id_room = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, roomId);
-            int affectedRows = ps.executeUpdate();
-            return affectedRows > 0;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Database error deleting Room with ID: " + roomId, e);
-        }
+    default boolean delete(Id<Room> id) {
+        return false;
     }
 
-    @Override
-    public int count() {
-        final String sql = "SELECT COUNT(*) FROM room";
-        int count = 0;
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                count = rs.getInt(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Database error counting Rooms.", e);
-        }
-        return count;
+    default int count() {
+        return 0;
     }
 
-    @Override
-    public Price calculateTotalPrice() {
-        final String sql = "SELECT SUM(price) FROM room";
-        Price totalPrice = new Price(BigDecimal.ZERO);
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                BigDecimal sumResult = rs.getBigDecimal(1);
-                if (sumResult != null) {
-                    totalPrice = new Price(sumResult);
-                }
-
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Database error calculating total Room price.", e);
-        }
-        return totalPrice;
+    default Price calculateTotalPrice() {
+        return null;
     }
 }

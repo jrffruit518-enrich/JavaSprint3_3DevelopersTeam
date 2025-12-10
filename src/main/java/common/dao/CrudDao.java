@@ -19,8 +19,6 @@ public interface CrudDao<T> {
 
     boolean delete(Id<T> id);
 
-    int count();
 
-    Price calculateTotalPrice();
 }
 

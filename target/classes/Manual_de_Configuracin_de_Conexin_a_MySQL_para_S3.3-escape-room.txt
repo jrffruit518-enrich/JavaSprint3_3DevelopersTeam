@@ -1,0 +1,42 @@
+⚙️ S3.3-Escape-Room 项目 MySQL 连接配置手册（中文翻译）
+Esto permite que el mismo código Java funcione sin modificaciones en cualquier entorno.
+这使得同一份 Java 代码无需修改即可在任何环境中运行。
+环境之间的差异通过注入变量 DB_URL 来管理。
+________________________________________
+2.1. Docker 环境（生产 / 容器）🐳
+应用程序在 Docker 网络 app_network 内运行。
+A. Maven 配置
+pom.xml 必须使用 maven-shade-plugin 来生成 Uber JAR（包含 JDBC 驱动）。
+这样可以避免出现：
+No suitable driver found
+的错误。
+________________________________________
+B. docker-compose.yaml 或 .env 中的关键变量
+变量	要求的值	目的
+DB_URL	jdbc:mysql://db:3306/${DB_DATABASE}?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true	使用 Docker 内部的 hostname db 和默认端口 3306。allowPublicKeyRetrieval=true 对 MySQL 8 至关重要。
+command：
+sh -c "sleep 10 && java -jar /app/app.jar"
+加入 10 秒暂停，防止 MySQL 尚未完全启动时 Java 提前连接而导致：
+Connection refused
+________________________________________
+2.2. 本地环境（IntelliJ）💻
+应用程序直接在操作系统中运行，并连接映射到主机的 MySQL 端口。
+A. 运行配置
+需要在 IntelliJ 的 Run Configuration 中手动设置环境变量。
+变量	本地运行的值	原因
+DB_URL	jdbc:mysql://localhost:3307/escape_room_db?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true	使用 localhost，并通过 3307（从容器映射出来的端口）连接
+DB_USER	（取自 .env）	MySQL 用户名
+DB_PASSWORD	（取自 .env）	MySQL 密码
+________________________________________
+B. 本地运行步骤
+1.	确保 MySQL 容器正在运行：
+docker compose up -d
+2.	在 IntelliJ 中运行你的 Main 类（点击 “Run” 按钮）。
+________________________________________
+3. 常见错误快速解决指南
+日志中的错误	根本原因	解决方案
+UnknownHostException: db	在 IntelliJ 中运行，但使用了 Docker 的 URL（db）	将本地的 DB_URL 修改为 localhost:3307
+No suitable driver found	MySQL 驱动未被打包进 JAR	使用 maven-shade-plugin 重新生成 Uber JAR：mvn clean package
+Connection refused	Java 程序启动早于 MySQL 完全启动	在 docker-compose 的 app 服务中加入 sleep 10
+Public Key Retrieval is not allowed	MySQL 8 的认证要求	在连接串末尾加入：&allowPublicKeyRetrieval=true
+Esto permite que el mismo código Java funcione sin modificaciones en cualquier entorno. La diferencia entre entornos se gestiona mediante la inyección de la variable DB_URL . 2.1. Entorno Docker (Producción/Contenedor) 🐳 La aplicación se ejecuta dentro de la red Docker ( app_network ). A. Configuración de Maven El archivo pom.xml debe usar el maven-shade-plugin para generar un Uber JAR (que incluye el driver JDBC) y evitar el error No suitable driver found . B. Variables Clave en docker-compose.yaml o .env Variable Valor Requerido Propósito DB_URL jdbc:mysql://db:3306/${DB_DATABASE}?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true Utiliza el hostnameinterno ( db ) y el puertopor defecto ( 3306 ). allowPublicKeyRetrieval=true es esencial para MySQL8.⚙️ Manual de Configuración de Conexión a MySQL para S3.3-Escape-Room 1 command sh -c "sleep 10 && java -jar /app/app.jar" Resuelve el error Connection refused alañadir una pausa de 10segundos para darletiempo a MySQL deinicializarsecompletamente. 2.2. Entorno Local (IntelliJ) 💻 La aplicación se ejecuta directamente en el sistema operativo y accede al puerto mapeado del contenedor MySQL. A. Configuración de Ejecución Debes configurar las variables de entorno manualmente en la Run Configuration de la clase Main en IntelliJ. Variable Valor Ajustado para Local Razón DB_URL jdbc:mysql://localhost:3307/escape_room_db?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true Utiliza localhost y elpuerto mapeado 3307 (el puerto queel contenedor exponea tu máquina). DB_USER ( Valor de su .env ) Credenciales DB_PASSWORD ( Valor de su .env ) Credenciales B. Procedimiento de Ejecución1. Asegúrate de que el contenedor MySQL esté activo: docker compose up -d2. Ejecutar la clase Main desde IntelliJ (botón "Run"). 3. Guía Rápida de Solución de Errores Error en los Logs Causa Principal Solución UnknownHostException:db Se está ejecutando enIntelliJ, pero se usa la URL deDocker ( db ). Corregir DB_URL en IntelliJ a localhost:3307 . No suitable driver found El conector MySQL no estáen el JAR. Regenerar el Uber JAR ( mvn clean package )asegurando que se use el maven-shade-plugin .⚙️ Manual de Configuración de Conexión a MySQL para S3.3-Escape-Room 2 Connection refused La aplicación Java se inicióantes que MySQL. Añadir o verificar el sleep 10 en el command del servicio app en docker-compose.yaml . Public Key Retrieval is notallowed Falla de autenticación porprotocolo de MySQL 8. Añadir &allowPublicKeyRetrieval=true al finalde la DB_URL
