@@ -2,18 +2,14 @@ package org.s3team.room.model;
 import org.s3team.common.valueobject.*;
 import org.s3team.theme.model.Theme;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 
 public class Room {
-    private Id<Room> roomId;  // Id de la sala, generado automáticamente por la base de datos
-    private Name name;     // Nombre de la sala
-    private Difficulty difficulty; // Nivel de dificultad de la sala
-    private Price price;// Precio de la sala
-    private Id<Theme> themeId;
-
-    protected Room() {
-    }
+    private final Id<Room> roomId;  // Id de la sala, generado automáticamente por la base de datos
+    private final Name name;     // Nombre de la sala
+    private final Difficulty difficulty; // Nivel de dificultad de la sala
+    private final Price price;// Precio de la sala
+    private final Id<Theme> themeId;
 
     private Room(Id<Room> roomId, Name name, Difficulty difficulty, Price price, Id<Theme> themeId) {
         this.roomId = roomId;
@@ -28,7 +24,6 @@ public class Room {
     }
 
     public static Room rehydrate(Id<Room> roomId, Name name, Difficulty difficulty, Price price, Id<Theme> themeId) {
-
         if (roomId == null) {
             throw new IllegalArgumentException("Rehydrating entity must have a valid ID.");
         }
@@ -36,46 +31,28 @@ public class Room {
     }
 
 
-
     public Id<Room>  getRoomId() {
         return roomId;
     }
 
-    public void setRoomId(Id<Room> roomId) {
-        this.roomId = roomId;
-    }
 
     public Name getName() {
         return name;
     }
 
-    public void setName(Name name) {
-        this.name = name;
-    }
 
     public Difficulty getDifficulty() {
         return difficulty;
-    }
-
-    public void setDifficulty(Difficulty difficulty) {
-        this.difficulty = difficulty;
     }
 
     public Price getPrice() {
         return price;
     }
 
-    public void setPrice(Price price) {
-        this.price = price;
-    }
-
     public Id<Theme> getThemeId() {
         return themeId;
     }
 
-    public void setThemeId(Id<Theme> themeId) {
-        this.themeId = themeId;
-    }
 
     @Override
     public boolean equals(Object o) {

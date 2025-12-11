@@ -24,6 +24,8 @@ public class RoomDAOImp implements RoomDAO {
     @Override
     public Room save(Room room) {
         final String sql = "insert into room(name,difficulty,price,theme_id)values(?,?,?,?)";
+        Room savedRoom = null;
+
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, room.getName().value());
             ps.setString(2, room.getDifficulty().toString());
@@ -34,19 +36,28 @@ public class RoomDAOImp implements RoomDAO {
                 throw new RuntimeException("Database error: Room creation failed, no rows affected.");
             }
             //El siguiente código asigna directamente el ID generado por MySQL al objeto para facilitar las consultas por ID.
+            int newIdValue = 0;
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    int newIdValue = generatedKeys.getInt(1);
+                    newIdValue = generatedKeys.getInt(1);
                     Id<Room> newId = new Id<>(newIdValue);
-                    room.setRoomId(newId);
                 } else {
                     throw new RuntimeException("Room saved but failed to retrieve generated ID.");
                 }
             }
+
+            savedRoom = Room.rehydrate(
+                    new Id<Room>(newIdValue),
+                    new Name(room.getName().value()),
+                    room.getDifficulty(),
+                    new Price(room.getPrice().value()),
+                    new Id<Theme>(room.getThemeId().value())
+            );
+
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Database error saving Room: " + room.getName(), e);
-        }return room;
+        }return savedRoom;
     }
 
     @Override
@@ -65,6 +76,7 @@ public class RoomDAOImp implements RoomDAO {
                     Difficulty difficulty = Difficulty.valueOf(difficultyString.toUpperCase());
                     Price price = new Price(rs.getBigDecimal("price"));
                     Id<Theme> themeId = new Id<>(rs.getInt("theme_id"));
+
                     Room room = Room.rehydrate(
                             foundRoomId,
                             name,
