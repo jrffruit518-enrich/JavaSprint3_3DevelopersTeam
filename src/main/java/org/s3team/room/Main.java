@@ -1,8 +1,13 @@
-package room;
+package org.s3team.room;
 
-import common.valueobject.Id;
-import common.valueobject.Name;
-import common.valueobject.Price;
+import org.s3team.common.valueobject.Id;
+import org.s3team.common.valueobject.Name;
+import org.s3team.common.valueobject.Price;
+import org.s3team.room.DAO.RoomDAOImp;
+import org.s3team.room.Service.RoomService;
+import org.s3team.room.model.Difficulty;
+import org.s3team.room.model.Room;
+import org.s3team.theme.model.Theme;
 
 import java.math.BigDecimal;
 
@@ -19,13 +24,18 @@ public class Main {
     public static void main(String[] args) {
         RoomDAOImp roomDAOImp = new RoomDAOImp();
         RoomService roomService = new RoomService(roomDAOImp);
-        Room roomFeliz = Room.createNew(new Name("Feliz"),Difficulty.EASY,new Price(new BigDecimal("120")),new Id<Theme>(2));
+        Room roomFeliz = Room.createNew(new Name("Feliz"), Difficulty.EASY,new Price(new BigDecimal("120")),new Id<Theme>(2));
         Room roomTerror = Room.createNew(new Name("Terror"),Difficulty.EXTREME,new Price(new BigDecimal("320")),new Id<Theme>(1));
         Room roomPuzzle = Room.createNew(new Name("Puzzle"),Difficulty.MEDIUM,new Price(new BigDecimal("180")),new Id<Theme>(3));
 
         roomService.save(roomFeliz);
         roomService.save(roomTerror);
         roomService.save(roomPuzzle);
+
+
+
+
+
 
         roomService.findAll().stream().forEach(System.out::println);
         System.out.println(roomService.findById(new Id<Room>(2)));

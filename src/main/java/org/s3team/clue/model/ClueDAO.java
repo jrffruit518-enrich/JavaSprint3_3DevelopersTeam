@@ -1,4 +1,4 @@
-package decoracion;
+package org.s3team.clue.model;
 
 /**
  * ClassName: ClueDAO

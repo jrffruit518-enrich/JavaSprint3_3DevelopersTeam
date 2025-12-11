@@ -1,4 +1,4 @@
-package DataBaseConnection;
+package org.s3team.DataBaseConnection;
 
 import java.sql.Connection;
 

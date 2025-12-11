@@ -1,15 +1,13 @@
-package common.dao;
+package org.s3team.common.dao;
 
-import common.valueobject.Id;
-import common.valueobject.Price;
+import org.s3team.common.valueobject.Id;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 public interface CrudDao<T> {
 
-    void save(T entity);
+    T save(T entity);
 
     Optional<T> findById(Id<T> id);
 
@@ -18,7 +16,5 @@ public interface CrudDao<T> {
     boolean update(T entity);
 
     boolean delete(Id<T> id);
-
-
 }
 
