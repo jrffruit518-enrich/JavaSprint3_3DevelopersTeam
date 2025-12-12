@@ -16,20 +16,18 @@ import org.s3team.theme.model.Theme;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class inventoryService {
+public class InventoryQueryService {
     private ClueService clueService;
     private DecorationService decorationService;
     private RoomService roomService;
 
-    public inventoryService(ClueService clueService, DecorationService decorationService, RoomService roomService) {
+    public InventoryQueryService(ClueService clueService, DecorationService decorationService, RoomService roomService) {
         this.clueService = clueService;
         this.decorationService = decorationService;
         this.roomService = roomService;
     }
 
-    public Room addRoom(Room room) {
-        return roomService.save(room);
-    }
+
 
     public Room findRoomById(Id<Room> id) {
         return roomService.findById(id);
@@ -39,13 +37,7 @@ public class inventoryService {
         return roomService.findAll();
     }
 
-    public Boolean updateRoom(Room room) {
-        return roomService.update(room);
-    }
 
-    public boolean deleteRoom(Id<Room> id) {
-        return roomService.delete(id);
-    }
 
     public int countRoom() {
         return roomService.count();
@@ -55,10 +47,7 @@ public class inventoryService {
         return roomService.calculateTotalPrice();
     }
 
-    public Clue addClue(ClueType type, ClueDescription description, Price price,
-                        Id<Theme> themeId, Id<Room> roomId) {
-        return clueService.createClue(type, description, price, themeId, roomId);
-    }
+
 
     public Clue getClueById(Id<Clue> id) {
         return clueService.getClueById(id).orElseThrow(() ->
@@ -70,13 +59,7 @@ public class inventoryService {
         return clueService.getAllClues();
     }
 
-    public Boolean updateClue(Clue clue) {
-        return clueService.updateClue(clue);
-    }
 
-    public boolean deleteClue(Id<Clue> id) {
-        return clueService.deleteClue(id);
-    }
 
     public int countClue() {
         return clueService.count();
@@ -86,9 +69,7 @@ public class inventoryService {
         return clueService.calculateTotalPrice();
     }
 
-    public void addDecoracion(Decoration decorationObject) {
-        decorationService.createDecoration(decorationObject);
-    }
+
 
     public Decoration findDecoracionById(Id<Decoration> id) {
         return decorationService.findDecoracionById(id);
@@ -98,13 +79,7 @@ public class inventoryService {
         return decorationService.getAllDecorations();
     }
 
-    public Boolean updateDecoracion(Decoration decorationObject) {
-        return decorationService.updateDecoracion(decorationObject);
-    }
 
-    public boolean deleteDecoracion(Id<Decoration> id) {
-        return decorationService.deleteDecoracion(id);
-    }
 
     public int countDecoracion() {
         return decorationService.countDecoracion();
