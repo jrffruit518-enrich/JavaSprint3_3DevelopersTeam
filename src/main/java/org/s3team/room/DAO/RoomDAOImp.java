@@ -1,5 +1,6 @@
 package org.s3team.room.DAO;
 
+import org.s3team.DataBaseConnection.Data_Base_Connection;
 import org.s3team.DataBaseConnection.MySQL_Data_Base_Connection;
 import org.s3team.common.valueobject.*;
 import org.s3team.room.model.Difficulty;
@@ -14,19 +15,19 @@ import java.util.Optional;
 
 public class RoomDAOImp implements RoomDAO {
 
-    private final Connection connection;
+    private final Data_Base_Connection db;
 
-    public RoomDAOImp() {
-        connection = MySQL_Data_Base_Connection.getInstance().getConnection();
+    public RoomDAOImp(Data_Base_Connection  db) {
+        this.db = db;
     }
-
 
     @Override
     public Room save(Room room) {
         final String sql = "insert into room(name,difficulty,price,theme_id)values(?,?,?,?)";
         Room savedRoom = null;
 
-        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = db.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, room.getName().value());
             ps.setString(2, room.getDifficulty().toString());
             ps.setBigDecimal(3, room.getPrice().value());
@@ -64,7 +65,8 @@ public class RoomDAOImp implements RoomDAO {
     public Optional<Room> findById(Id<Room> id) {
         final String SQL = "SELECT id_room, name, difficulty, price, theme_id FROM room WHERE id_room = ?";
         int roomIdValue = id.value();
-        try (PreparedStatement ps = connection.prepareStatement(SQL)) {
+        try (Connection connection = db.getConnection();
+             PreparedStatement ps = connection.prepareStatement(SQL)) {
             ps.setInt(1, roomIdValue);
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -96,12 +98,13 @@ public class RoomDAOImp implements RoomDAO {
     }
 
     @Override
-    public List findAll() {
+    public List<Room> findAll() {
         final String SQL = "SELECT id_room, name, difficulty, price, theme_id FROM room";
 
         List<Room> rooms = new ArrayList<>();
 
-        try (PreparedStatement ps = connection.prepareStatement(SQL);
+        try (Connection connection = db.getConnection();
+             PreparedStatement ps = connection.prepareStatement(SQL);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Id<Room> foundRoomId = new Id<>(rs.getInt("id_room"));
@@ -135,7 +138,8 @@ public class RoomDAOImp implements RoomDAO {
             throw new IllegalArgumentException("Cannot update Room: ID is missing.");
         }
         int roomIdValue = room.getRoomId().value();
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (Connection connection = db.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, room.getName().value());
             ps.setString(2, room.getDifficulty().toString());
             ps.setBigDecimal(3, room.getPrice().value());
@@ -153,7 +157,8 @@ public class RoomDAOImp implements RoomDAO {
     public boolean delete(Id<Room> id) {
         int roomId = id.value();
         final String sql = "DELETE FROM room WHERE id_room = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (Connection connection = db.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, roomId);
             int affectedRows = ps.executeUpdate();
             return affectedRows > 0;
@@ -168,7 +173,8 @@ public class RoomDAOImp implements RoomDAO {
     public int count() {
         final String sql = "SELECT COUNT(*) FROM room";
         int count = 0;
-        try (PreparedStatement ps = connection.prepareStatement(sql);
+        try (Connection connection = db.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 count = rs.getInt(1);
@@ -184,7 +190,8 @@ public class RoomDAOImp implements RoomDAO {
     public Price calculateTotalPrice() {
         final String sql = "SELECT SUM(price) FROM room";
         Price totalPrice = new Price(BigDecimal.ZERO);
-        try (PreparedStatement ps = connection.prepareStatement(sql);
+        try (Connection connection = db.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 BigDecimal sumResult = rs.getBigDecimal(1);

@@ -1,16 +1,5 @@
 package org.s3team.room;
 
-import org.s3team.common.valueobject.Id;
-import org.s3team.common.valueobject.Name;
-import org.s3team.common.valueobject.Price;
-import org.s3team.room.DAO.RoomDAOImp;
-import org.s3team.room.Service.RoomService;
-import org.s3team.room.model.Difficulty;
-import org.s3team.room.model.Room;
-import org.s3team.theme.model.Theme;
-
-import java.math.BigDecimal;
-
 /**
  * ClassName: Main
  * Package: room
@@ -20,7 +9,7 @@ import java.math.BigDecimal;
  * Version:v1.0
  *
  */
-public class Main {
+/*public class Main {
     public static void main(String[] args) {
         RoomDAOImp roomDAOImp = new RoomDAOImp();
         RoomService roomService = new RoomService(roomDAOImp);
@@ -33,15 +22,10 @@ public class Main {
         roomService.save(roomPuzzle);
 
 
-
-
-
-
         roomService.findAll().stream().forEach(System.out::println);
-        System.out.println(roomService.findById(new Id<Room>(2)));
+        System.out.println(roomService.findById(new Id<Room>(7)));
 
-       Room roomFelizUpdate = roomService.findById(new Id<Room>(2));
-        roomFelizUpdate.setName(new Name("Happy"));
+        Room roomFelizUpdate = Room.rehydrate(new Id<Room>(7),new Name("Happy"), Difficulty.EASY,new Price(new BigDecimal("120")),new Id<Theme>(2));
         roomService.update(roomFelizUpdate);
 
         System.out.println(roomService.count());
@@ -51,4 +35,4 @@ public class Main {
         System.out.println(roomService.count());
         System.out.println(roomService.calculateTotalPrice());
     }
-}
+}*/

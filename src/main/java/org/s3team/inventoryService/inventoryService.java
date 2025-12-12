@@ -1,8 +1,20 @@
 package org.s3team.inventoryService;
 
-import org.s3team.clue.model.ClueService;
-import org.s3team.decoracion.DecorationService;
+import org.s3team.Exceptions.ClueNotFoundException;
+import org.s3team.clue.model.Clue;
+import org.s3team.clue.model.ClueDescription;
+import org.s3team.clue.model.ClueType;
+import org.s3team.clue.service.ClueService;
+import org.s3team.common.valueobject.Id;
+import org.s3team.common.valueobject.Price;
+import org.s3team.decoration.model.Decoration;
+import org.s3team.decoration.service.DecorationService;
 import org.s3team.room.Service.RoomService;
+import org.s3team.room.model.Room;
+import org.s3team.theme.model.Theme;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 public class inventoryService {
     private ClueService clueService;
@@ -15,6 +27,133 @@ public class inventoryService {
         this.roomService = roomService;
     }
 
+    public Room addRoom(Room room) {
+        return roomService.save(room);
+    }
+
+    public Room findRoomById(Id<Room> id) {
+        return roomService.findById(id);
+    }
+
+    public List<Room> listRoom() {
+        return roomService.findAll();
+    }
+
+    public Boolean updateRoom(Room room) {
+        return roomService.update(room);
+    }
+
+    public boolean deleteRoom(Id<Room> id) {
+        return roomService.delete(id);
+    }
+
+    public int countRoom() {
+        return roomService.count();
+    }
+
+    public Price calculateRoomTotalPrice() {
+        return roomService.calculateTotalPrice();
+    }
+
+    public Clue addClue(ClueType type, ClueDescription description, Price price,
+                        Id<Theme> themeId, Id<Room> roomId) {
+        return clueService.createClue(type, description, price, themeId, roomId);
+    }
+
+    public Clue getClueById(Id<Clue> id) {
+        return clueService.getClueById(id).orElseThrow(() ->
+                new ClueNotFoundException("Clue with ID " + id.value() + " not found.")
+        );
+    }
+
+    public List<Clue> listClue() {
+        return clueService.getAllClues();
+    }
+
+    public Boolean updateClue(Clue clue) {
+        return clueService.updateClue(clue);
+    }
+
+    public boolean deleteClue(Id<Clue> id) {
+        return clueService.deleteClue(id);
+    }
+
+    public int countClue() {
+        return clueService.count();
+    }
+
+    public Price calculateClueTotalPrice() {
+        return clueService.calculateTotalPrice();
+    }
+
+    public void addDecoracion(Decoration decorationObject) {
+        decorationService.createDecoration(decorationObject);
+    }
+
+    public Decoration findDecoracionById(Id<Decoration> id) {
+        return decorationService.findDecoracionById(id);
+    }
+
+    public List<Decoration> listDecoracion() {
+        return decorationService.getAllDecorations();
+    }
+
+    public Boolean updateDecoracion(Decoration decorationObject) {
+        return decorationService.updateDecoracion(decorationObject);
+    }
+
+    public boolean deleteDecoracion(Id<Decoration> id) {
+        return decorationService.deleteDecoracion(id);
+    }
+
+    public int countDecoracion() {
+        return decorationService.countDecoracion();
+    }
+
+    public Price calculateDecoracionTotalPrice() {
+        return decorationService.calculateDecoracionTotalPrice();
+    }
+
+    public int countInventory() {
+        int roomNumber = roomService.count();
+        int clueNumber = clueService.count();
+        int decoracionNumber = decorationService.countDecoracion();
+        int totalInventoryNumber = roomNumber + clueNumber + decoracionNumber;
+
+        // Print statements to display inventory counts
+        System.out.println("--- Inventory Count Summary ---");
+        System.out.println("Number of Rooms: " + roomNumber);
+        System.out.println("Number of Clues: " + clueNumber);
+        System.out.println("Number of Decorations: " + decoracionNumber);
+        System.out.println("-------------------------------");
+        System.out.println("Total Inventory Count: " + totalInventoryNumber);
+
+        return totalInventoryNumber;
+    }
+
+    public Price calculateTotalPrice() {
+        Price roomTotalPrice = roomService.calculateTotalPrice();
+        Price clueTotalPrice = clueService.calculateTotalPrice();
+        Price decorationTotalPrice = decorationService.calculateDecoracionTotalPrice();
+
+        BigDecimal roomAmount = roomTotalPrice.value();
+        BigDecimal clueAmount = clueTotalPrice.value();
+        BigDecimal decorationAmount = decorationTotalPrice.value();
+
+        BigDecimal totalAmount = roomAmount.add(clueAmount).add(decorationAmount);
+
+        Price totalInventoryPrice = new Price(totalAmount);
+
+        System.out.println("--- Inventory Price Summary ---");
+        System.out.println("Room Total Price: " + roomAmount);
+        System.out.println("Clue Total Price: " + clueAmount);
+        System.out.println("Decoration Total Price: " + decorationAmount);
+        System.out.println("---------------------------------");
+        System.out.println("Total Inventory Price: " + totalAmount);
+
+        return totalInventoryPrice;
+
+    }
 
 
 }
