@@ -72,7 +72,7 @@ public class MainMenuController {
         }
 
 
-        SCANNER.close();
+       // SCANNER.close();
     }
 
     // Métodos Placeholders
@@ -247,7 +247,7 @@ public class MainMenuController {
     }
 
     // *** Método Corregido de Sub-Menú de Adición ***
-    private void addItemMenu() {
+   /* private void addItemMenu() {
         boolean addItemMenuExit = false;
         int option;
 
@@ -289,6 +289,6 @@ public class MainMenuController {
                 SCANNER.nextLine(); // Limpiar el buffer
             }
         }
-    }
+    }*/
 
 }

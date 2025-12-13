@@ -60,4 +60,13 @@ public class ClueService {
     public boolean deleteClue(Id<Clue> id) {
         return clueDao.delete(id);
     }
+
+    public int count() {
+        return  0;
+    }
+
+    public Price calculateTotalPrice() {
+        return null;
+    }
+
 }

@@ -1,24 +1,9 @@
 package org.s3team;
 
-import org.s3team.DataBaseConnection.Data_Base_Connection;
 import org.s3team.DataBaseConnection.MySQL_Data_Base_Connection;
 import org.s3team.Menu.AppFactory;
 import org.s3team.Menu.MainMenuController;
-import org.s3team.clue.dao.ClueDao;
-import org.s3team.clue.dao.ClueDaoImpl;
-import org.s3team.clue.service.ClueService;
-import org.s3team.decoration.dao.DecorationDao;
-import org.s3team.decoration.dao.DecorationDaoImpl;
-import org.s3team.decoration.service.DecorationService;
 import org.s3team.inventoryMenu.*;
-import org.s3team.inventoryService.InventoryManagementService;
-import org.s3team.inventoryService.InventoryQueryService;
-import org.s3team.room.DAO.RoomDAO;
-import org.s3team.room.DAO.RoomDAOImp;
-import org.s3team.room.Service.RoomService;
-import org.s3team.theme.dao.ThemeDao;
-import org.s3team.theme.dao.ThemeDaoImpl;
-
 import java.sql.Connection;
 import java.util.Scanner;
 
@@ -26,7 +11,7 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("--- S3.3 Escape Room Application Starting ---");
-        Scanner scanner = new Scanner(System.in);
+        //Scanner scanner = new Scanner(System.in);
         MySQL_Data_Base_Connection dbInstance = null;
 
         // 1. Intentar obtener la instancia Singleton y abrir la conexión
@@ -36,10 +21,10 @@ public class Main {
             dbInstance = MySQL_Data_Base_Connection.getInstance();
 
             // 2. Si llegamos aquí, la conexión fue exitosa.
-            Connection conn = dbInstance.getConnection();
+            // Connection conn = dbInstance.getConnection();
 
             System.out.println("Database Connection Status: SUCCESS!");
-            System.out.println("JDBC Connection Object: " + conn);
+           // System.out.println("JDBC Connection Object: " + conn);
 
             // Aquí iría el resto de la lógica de tu aplicación
 
@@ -53,9 +38,8 @@ public class Main {
         }
 
         AppFactory appFactory = new AppFactory(dbInstance);
-        InventoryMenu inventoryMenu = appFactory.inventoryMenuGenerate(scanner);
+        InventoryMenu inventoryMenu = appFactory.inventoryMenuGenerate();
         MainMenuController startApp = new MainMenuController(inventoryMenu);
         startApp.startApplication();
-        scanner.close();
     }
 }

@@ -9,8 +9,6 @@ import org.s3team.decoration.model.Decoration;
 import org.s3team.decoration.service.DecorationService;
 import org.s3team.room.Service.RoomService;
 import org.s3team.room.model.Room;
-
-import java.math.BigDecimal;
 import java.util.List;
 
 public class InventoryQueryService {
@@ -29,12 +27,12 @@ public class InventoryQueryService {
         return roomService.findById(id);
     }
 
-    public List<Room> listRoom() {
+    public List<Room> listRooms() {
         return roomService.findAll();
     }
 
 
-    public int countRoom() {
+    public int countRooms() {
         return roomService.count();
     }
 
@@ -49,12 +47,12 @@ public class InventoryQueryService {
         );
     }
 
-    public List<Clue> listClue() {
+    public List<Clue> listClues() {
         return clueService.getAllClues();
     }
 
 
-    public int countClue() {
+    public int countClues() {
         return clueService.count();
     }
 
@@ -63,63 +61,21 @@ public class InventoryQueryService {
     }
 
 
-    public Decoration findDecoracionById(Id<Decoration> id) {
-        return decorationService.findDecoracionById(id);
+    public Decoration findDecorationById(Id<Decoration> id) {
+        return decorationService.findDecorationById();
     }
 
-    public List<Decoration> listDecoracion() {
+    public List<Decoration> listDecorations() {
         return decorationService.getAllDecorations();
     }
 
 
-    public int countDecoracion() {
-        return decorationService.countDecoracion();
+    public int countDecorations() {
+        return decorationService.count();
     }
 
-    public Price calculateDecoracionTotalPrice() {
-        return decorationService.calculateDecoracionTotalPrice();
+    public Price calculateDecorationTotalPrice() {
+        return decorationService.calculateTotalPrice();
     }
-
-    public int countInventory() {
-        int roomNumber = roomService.count();
-        int clueNumber = clueService.count();
-        int decoracionNumber = decorationService.countDecoracion();
-        int totalInventoryNumber = roomNumber + clueNumber + decoracionNumber;
-
-        // Print statements to display inventory counts
-        System.out.println("--- Inventory Count Summary ---");
-        System.out.println("Number of Rooms: " + roomNumber);
-        System.out.println("Number of Clues: " + clueNumber);
-        System.out.println("Number of Decorations: " + decoracionNumber);
-        System.out.println("-------------------------------");
-        System.out.println("Total Inventory Count: " + totalInventoryNumber);
-
-        return totalInventoryNumber;
-    }
-
-    public Price calculateTotalPrice() {
-        Price roomTotalPrice = roomService.calculateTotalPrice();
-        Price clueTotalPrice = clueService.calculateTotalPrice();
-        Price decorationTotalPrice = decorationService.calculateDecoracionTotalPrice();
-
-        BigDecimal roomAmount = roomTotalPrice.value();
-        BigDecimal clueAmount = clueTotalPrice.value();
-        BigDecimal decorationAmount = decorationTotalPrice.value();
-
-        BigDecimal totalAmount = roomAmount.add(clueAmount).add(decorationAmount);
-
-        Price totalInventoryPrice = new Price(totalAmount);
-
-        System.out.println("--- Inventory Price Summary ---");
-        System.out.println("Room Total Price: " + roomAmount);
-        System.out.println("Clue Total Price: " + clueAmount);
-        System.out.println("Decoration Total Price: " + decorationAmount);
-        System.out.println("---------------------------------");
-        System.out.println("Total Inventory Price: " + totalAmount);
-
-        return totalInventoryPrice;
-
-    }
-
 
 }

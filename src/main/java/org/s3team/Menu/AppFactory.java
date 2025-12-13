@@ -1,7 +1,6 @@
 package org.s3team.Menu;
 
 import org.s3team.DataBaseConnection.Data_Base_Connection;
-import org.s3team.DataBaseConnection.MySQL_Data_Base_Connection;
 import org.s3team.clue.dao.ClueDao;
 import org.s3team.clue.dao.ClueDaoImpl;
 import org.s3team.clue.service.ClueService;
@@ -35,7 +34,7 @@ public class AppFactory {
         this.db = db;
     }
 
-    public InventoryMenu inventoryMenuGenerate(Scanner scanner) {
+    public InventoryMenu inventoryMenuGenerate() {
         RoomDAO roomDAO = new RoomDAOImp(db);
         DecorationDao decorationDao = new DecorationDaoImpl();
         ClueDao clueDao = new ClueDaoImpl(db);
@@ -45,14 +44,15 @@ public class AppFactory {
         RoomService roomService = new RoomService(roomDAO,themeDao);
         InventoryManagementService inventoryManagementService = new InventoryManagementService(clueService,decorationService,roomService);
         InventoryQueryService inventoryQueryService = new InventoryQueryService(clueService,decorationService,roomService);
-        AddItemMenu addItemMenu = new AddItemMenu(inventoryManagementService,scanner);
+        AddItemMenu addItemMenu = new AddItemMenu(inventoryManagementService);
         RemoveItemMenu removeItemMenu = new RemoveItemMenu(inventoryManagementService);
-        DisplayInvetoryMenu displayInvetoryMenu = new DisplayInvetoryMenu(inventoryQueryService);
+        UpdateItemMenu updateItemMenu = new UpdateItemMenu(inventoryManagementService);
+        DisplayInventoryMenu displayInvetoryMenu = new DisplayInventoryMenu(inventoryQueryService);
         DisplayInventoryValueMenu displayInventoryValueMenu = new DisplayInventoryValueMenu(inventoryQueryService);
         DisplayInventoryQuantityMenu displayInventoryQuantityMenu = new DisplayInventoryQuantityMenu(inventoryQueryService);
-        return new InventoryMenu(addItemMenu,removeItemMenu,displayInvetoryMenu,displayInventoryValueMenu,displayInventoryQuantityMenu,scanner);
+        return new InventoryMenu(addItemMenu,updateItemMenu,removeItemMenu,displayInvetoryMenu,displayInventoryValueMenu,displayInventoryQuantityMenu);
     }
-    public InventoryMenu salesMenuGenerate(Scanner scanner) {
+    public InventoryMenu salesMenuGenerate() {
         return null;
     }
 
