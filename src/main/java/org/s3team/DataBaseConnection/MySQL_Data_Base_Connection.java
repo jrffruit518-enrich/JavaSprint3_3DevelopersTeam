@@ -1,27 +1,21 @@
 package org.s3team.DataBaseConnection;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Map;
 
 public class MySQL_Data_Base_Connection implements Data_Base_Connection {
 
     private static MySQL_Data_Base_Connection instance;
     private Connection connection;
-    /*private String url;
+    private String url;
     private String user;
-    private String password;*/
+    private String password;
 
-    private static final String URL = "jdbc:mysql://localhost:3306/escape_room";
-    private static final String USER = "root";
-    private static final String PASSWORD = "888888";
-
-   /* private MySQL_Data_Base_Connection() {
+    private MySQL_Data_Base_Connection() {
         getDatabaseProperties();
-        this.connection = null;
-    }*/
-   public MySQL_Data_Base_Connection() {
-        // 2. 【移除】不需要调用 getDatabaseProperties()
         this.connection = null;
     }
 
@@ -37,22 +31,22 @@ public class MySQL_Data_Base_Connection implements Data_Base_Connection {
         return instance;
     }
 
-   /* private void getDatabaseProperties() {
+    private void getDatabaseProperties() {
         Map<String, String> env = System.getenv();
         url = env.get("DB_URL");
         user = env.get("DB_USER");
         password = env.get("DB_PASSWORD");
-    }*/
+    }
 
     @Override
     public void openConnection() {
         try {
             if (this.connection == null || this.connection.isClosed()) {
                 System.out.println("Connection is closed or null. Attempting to re-establish connection...");
-                if (URL == null || USER == null || PASSWORD == null) {
+                if (url == null || user == null || password == null) {
                     throw new IllegalStateException("Database connection properties (DB_URL, DB_USER, DB_PASSWORD) are missing from environment variables. Check your .env file and docker-compose.yaml.");
                 }
-                this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
+                this.connection = DriverManager.getConnection(url, user, password);
                 System.out.println("Successful connection to MySQL.");
             }
         } catch (SQLException e) {

@@ -21,7 +21,12 @@ import org.s3team.theme.model.Theme;
  * Version:v1.0
  *
  */
-public class InventoryManagementService {
+public class
+
+
+
+
+InventoryManagementService {
     private ClueService clueService;
     private DecorationService decorationService;
     private RoomService roomService;

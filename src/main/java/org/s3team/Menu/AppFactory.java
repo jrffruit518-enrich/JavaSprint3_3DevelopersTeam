@@ -45,7 +45,7 @@ public class AppFactory {
         RoomService roomService = new RoomService(roomDAO,themeDao);
         InventoryManagementService inventoryManagementService = new InventoryManagementService(clueService,decorationService,roomService);
         InventoryQueryService inventoryQueryService = new InventoryQueryService(clueService,decorationService,roomService);
-        AddItemMenu addItemMenu = new AddItemMenu(inventoryManagementService);
+        AddItemMenu addItemMenu = new AddItemMenu(inventoryManagementService,scanner);
         RemoveItemMenu removeItemMenu = new RemoveItemMenu(inventoryManagementService);
         DisplayInvetoryMenu displayInvetoryMenu = new DisplayInvetoryMenu(inventoryQueryService);
         DisplayInventoryValueMenu displayInventoryValueMenu = new DisplayInventoryValueMenu(inventoryQueryService);

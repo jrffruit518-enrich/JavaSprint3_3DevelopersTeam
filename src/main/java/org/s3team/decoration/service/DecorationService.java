@@ -1,7 +1,5 @@
 package org.s3team.decoration.service;
 
-import org.s3team.common.valueobject.Id;
-import org.s3team.common.valueobject.Price;
 import org.s3team.decoration.dao.DecorationDaoImpl;
 import org.s3team.decoration.model.Decoration;
 import org.s3team.decoration.model.Material;
@@ -46,22 +44,4 @@ public class DecorationService {
     public List<Decoration> getAllDecorations() {
         return decorationDaoImpl.findAll();
     }
-    public Decoration findDecoracionById(Id<Decoration> id) {
-        return null;
-    }
-    public Boolean updateDecoracion(Decoration decorationObject) {
-        return null;
-    }
-
-    public boolean deleteDecoracion(Id<Decoration> id) {
-        return true;
-    }
-    public int countDecoracion() {
-        return 0;
-    }
-    public Price calculateDecoracionTotalPrice() {
-        return null;
-    }
-
-
 }
