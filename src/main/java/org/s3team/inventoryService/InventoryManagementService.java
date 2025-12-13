@@ -22,18 +22,20 @@ import org.s3team.theme.model.Theme;
  *
  */
 public class InventoryManagementService {
-        private ClueService clueService;
-        private DecorationService decorationService;
-        private RoomService roomService;
+    private ClueService clueService;
+    private DecorationService decorationService;
+    private RoomService roomService;
 
-        public InventoryManagementService(ClueService clueService, DecorationService decorationService, RoomService roomService) {
-            this.clueService = clueService;
-            this.decorationService = decorationService;
-            this.roomService = roomService;
-        }
+    public InventoryManagementService(ClueService clueService, DecorationService decorationService, RoomService roomService) {
+        this.clueService = clueService;
+        this.decorationService = decorationService;
+        this.roomService = roomService;
+    }
+
     public Room addRoom(Room room) {
         return roomService.save(room);
     }
+
     public Boolean updateRoom(Room room) {
         return roomService.update(room);
     }
@@ -46,6 +48,7 @@ public class InventoryManagementService {
                         Id<Theme> themeId, Id<Room> roomId) {
         return clueService.createClue(type, description, price, themeId, roomId);
     }
+
     public Boolean updateClue(Clue clue) {
         return clueService.updateClue(clue);
     }
@@ -53,9 +56,11 @@ public class InventoryManagementService {
     public boolean deleteClue(Id<Clue> id) {
         return clueService.deleteClue(id);
     }
+
     public void addDecoracion(Decoration decorationObject) {
         decorationService.createDecoration(decorationObject);
     }
+
     public Boolean updateDecoracion(Decoration decorationObject) {
         return decorationService.updateDecoracion(decorationObject);
     }

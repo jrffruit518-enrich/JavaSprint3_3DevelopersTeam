@@ -20,7 +20,7 @@ public class MySQL_Data_Base_Connection implements Data_Base_Connection {
         getDatabaseProperties();
         this.connection = null;
     }*/
-    private MySQL_Data_Base_Connection() {
+   public MySQL_Data_Base_Connection() {
         // 2. 【移除】不需要调用 getDatabaseProperties()
         this.connection = null;
     }

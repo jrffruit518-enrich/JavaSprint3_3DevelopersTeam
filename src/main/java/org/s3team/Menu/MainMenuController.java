@@ -1,17 +1,22 @@
 package org.s3team.Menu;
 
+import org.s3team.inventoryMenu.InventoryMenu;
+
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class MainMenuController {
+    private final InventoryMenu inventoryMenu;
+
 
 
     private final Scanner SCANNER;
     private boolean exit = false;
 
 
-    public MainMenuController() {
+    public MainMenuController(InventoryMenu inventoryMenu) {
         this.SCANNER = new Scanner(System.in);
+        this.inventoryMenu = inventoryMenu;
     }
 
     public void startApplication() {
@@ -192,7 +197,9 @@ public class MainMenuController {
 
     // *** Método Corregido de Inventario ***
     public void manageInventory() {
-        boolean inventoryMenuExit = false;
+        inventoryMenu.inventoryMenuStart();
+
+       /* boolean inventoryMenuExit = false;
         int option;
 
         while (!inventoryMenuExit) {
@@ -236,7 +243,7 @@ public class MainMenuController {
                 System.out.println("⛔ Input Error: Please enter a valid number.");
                 SCANNER.nextLine(); // Limpiar el buffer
             }
-        }
+        }*/
     }
 
     // *** Método Corregido de Sub-Menú de Adición ***

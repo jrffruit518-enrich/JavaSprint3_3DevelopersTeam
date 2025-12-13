@@ -2,8 +2,6 @@ package org.s3team.inventoryService;
 
 import org.s3team.Exceptions.ClueNotFoundException;
 import org.s3team.clue.model.Clue;
-import org.s3team.clue.model.ClueDescription;
-import org.s3team.clue.model.ClueType;
 import org.s3team.clue.service.ClueService;
 import org.s3team.common.valueobject.Id;
 import org.s3team.common.valueobject.Price;
@@ -11,7 +9,6 @@ import org.s3team.decoration.model.Decoration;
 import org.s3team.decoration.service.DecorationService;
 import org.s3team.room.Service.RoomService;
 import org.s3team.room.model.Room;
-import org.s3team.theme.model.Theme;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -28,7 +25,6 @@ public class InventoryQueryService {
     }
 
 
-
     public Room findRoomById(Id<Room> id) {
         return roomService.findById(id);
     }
@@ -38,7 +34,6 @@ public class InventoryQueryService {
     }
 
 
-
     public int countRoom() {
         return roomService.count();
     }
@@ -46,7 +41,6 @@ public class InventoryQueryService {
     public Price calculateRoomTotalPrice() {
         return roomService.calculateTotalPrice();
     }
-
 
 
     public Clue getClueById(Id<Clue> id) {
@@ -60,7 +54,6 @@ public class InventoryQueryService {
     }
 
 
-
     public int countClue() {
         return clueService.count();
     }
@@ -70,7 +63,6 @@ public class InventoryQueryService {
     }
 
 
-
     public Decoration findDecoracionById(Id<Decoration> id) {
         return decorationService.findDecoracionById(id);
     }
@@ -78,7 +70,6 @@ public class InventoryQueryService {
     public List<Decoration> listDecoracion() {
         return decorationService.getAllDecorations();
     }
-
 
 
     public int countDecoracion() {
