@@ -9,32 +9,46 @@ import java.util.Map;
 public class MySQL_Data_Base_Connection implements Data_Base_Connection {
 
     private static MySQL_Data_Base_Connection instance;
-    private Connection connection;
-
-
-    private final String url = "jdbc:mysql://localhost:3306/escape_room";
-    private final String user = "root";
-    private final String password = "888888";
-    // ----------------------
+    //private Connection connection;
+    private String url;
+    private String user;
+    private String password;
 
     private MySQL_Data_Base_Connection() {
-
-        this.connection = null;
+        getDatabaseProperties();
     }
 
     public static synchronized MySQL_Data_Base_Connection getInstance() {
-        if (instance == null) {
+        /*if (instance == null) {
             try {
                 instance = new MySQL_Data_Base_Connection();
                 instance.openConnection();
             } catch (Exception e) {
-
                 throw new RuntimeException("Error connecting to the database", e);
             }
+        }
+        return instance;*/
+        if (instance == null) {
+            instance = new MySQL_Data_Base_Connection();
         }
         return instance;
     }
 
+    private void getDatabaseProperties() {
+        Map<String, String> env = System.getenv();
+        url = env.get("DB_URL");
+        user = env.get("DB_USER");
+        password = env.get("DB_PASSWORD");
+        if (url == null || user == null || password == null) {
+            throw new IllegalStateException(
+                    "Missing DB environment variables: DB_URL, DB_USER, DB_PASSWORD"
+            );
+        }
+    }
+    @Override
+    public Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(url, user, password);
+    }
 
 
   /*  @Override
@@ -42,43 +56,16 @@ public class MySQL_Data_Base_Connection implements Data_Base_Connection {
         try {
             if (this.connection == null || this.connection.isClosed()) {
                 System.out.println("Connection is closed or null. Attempting to re-establish connection...");
-
-                // 尝试使用硬编码的 URL, user, password 进行连接
-                this.connection = DriverManager.getConnection(url, user, password);
-                System.out.println("Successful connection to MySQL.");
-            }
-        } catch (SQLException e) {
-            // 如果连接失败（例如 MySQL 服务未运行，或用户名/密码错误），则抛出运行时异常
-            throw new RuntimeException("Error connecting to the database", e);
-        }
-
-    }*/
-    @Override
-    public void openConnection() {
-        try {
-            // 如果连接为 null 或已关闭，则重新建立连接
-            if (this.connection == null || this.connection.isClosed()) {
-                System.out.println("Connection is closed or null. Attempting to re-establish connection...");
-                // ... (使用 DriverManager.getConnection 重新建立连接)
+                if (url == null || user == null || password == null) {
+                    throw new IllegalStateException("Database connection properties (DB_URL, DB_USER, DB_PASSWORD) are missing from environment variables. Check your .env file and docker-compose.yaml.");
+                }
                 this.connection = DriverManager.getConnection(url, user, password);
                 System.out.println("Successful connection to MySQL.");
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error connecting to the database", e);
         }
-    }
 
- /*   public Connection getConnection() {
-        return this.connection;
-    }*/
-
-    public Connection getConnection() {
-        try {
-            openConnection();
-            return this.connection;
-        } catch (RuntimeException e) {
-            throw e;
-        }
     }
 
     @Override
@@ -90,5 +77,5 @@ public class MySQL_Data_Base_Connection implements Data_Base_Connection {
                 throw new RuntimeException("Error closing connection to data base", e);
             }
         }
-    }
+    }*/
 }
