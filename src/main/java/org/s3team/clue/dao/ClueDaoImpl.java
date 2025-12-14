@@ -51,6 +51,9 @@ public class ClueDaoImpl implements ClueDao{
                 throw new SQLException("No ID returned for clue");
             }
         } catch (SQLException e){
+
+            System.err.println("Database Error Details:");
+            e.printStackTrace();
             throw new RuntimeException("Error saving clue", e);
         }
     }
