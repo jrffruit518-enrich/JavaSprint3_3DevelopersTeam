@@ -97,7 +97,7 @@ public class MainMenuController {
                 option = ConsoleInput.readInt("Choose an option for Sales Management: ");
                 switch (option) {
                     case 1 -> appFactory.ticketMenuGenerate().start();
-                    case 2 -> displayTotalRevenue(appFactory.ticketService());
+                    //case 2 -> displayTotalRevenue(appFactory.ticketService());
                     case 0 -> {
                         salesMenuExit = true;
                         System.out.println("Returning to Main Menu...");
