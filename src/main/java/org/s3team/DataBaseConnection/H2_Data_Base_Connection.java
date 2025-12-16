@@ -33,17 +33,13 @@ import java.sql.SQLException;
             Connection conn = DriverManager.getConnection(
                     "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MYSQL", "sa", "");
 
-            // 每次连接时建表并插入默认主题
             try (Statement stmt = conn.createStatement()) {
-                // 创建 theme 表
                 stmt.execute("CREATE TABLE IF NOT EXISTS theme (" +
                         "id_theme INT PRIMARY KEY, " +
                         "name VARCHAR(255) NOT NULL)");
 
-                // 插入默认主题，如果已经存在就忽略
                 stmt.execute("MERGE INTO theme (id_theme, name) KEY(id_theme) VALUES (1, 'Default Theme')");
 
-                // 创建 room 表
                 stmt.execute("CREATE TABLE IF NOT EXISTS room (" +
                         "id_room INT AUTO_INCREMENT PRIMARY KEY, " +
                         "name VARCHAR(255) NOT NULL, " +

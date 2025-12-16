@@ -38,8 +38,8 @@ public class RoomDAOImpTest {
 
     @BeforeEach
     public void setup() {
-        Data_Base_Connection db = H2_Data_Base_Connection.getInstance(); // 自定义 H2 连接类
-       roomDAOImp = new RoomDAOImp(db);
+        Data_Base_Connection db = H2_Data_Base_Connection.getInstance();
+        roomDAOImp = new RoomDAOImp(db);
     }
 
     @Test
