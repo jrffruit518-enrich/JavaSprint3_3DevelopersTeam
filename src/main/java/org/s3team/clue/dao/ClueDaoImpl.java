@@ -129,6 +129,21 @@ public class ClueDaoImpl implements ClueDao{
         }
     }
 
+
+
+    private Clue mapRow(ResultSet rs) throws SQLException {
+        return Clue.rehydrate(
+                new Id<>(rs.getInt("id_clue")),
+                ClueType.valueOf(rs.getString("type")),
+                new ClueDescription(rs.getString("clue_description")),
+                new Price(rs.getBigDecimal("price")),
+                new Id<>(rs.getInt("theme_id")),
+                new Id<>(rs.getInt("room_id"))
+        );
+    }
+
+
+    @Override
     public int count() {
         final String sql = "SELECT COUNT(*) FROM clue";
         int count = 0;
@@ -145,7 +160,7 @@ public class ClueDaoImpl implements ClueDao{
         return count;
     }
 
-
+    @Override
     public Price calculateTotalPrice() {
         final String sql = "SELECT SUM(price) FROM clue";
         Price totalPrice = new Price(BigDecimal.ZERO);
@@ -164,20 +179,5 @@ public class ClueDaoImpl implements ClueDao{
         }
         return totalPrice;
     }
-
-
-
-    private Clue mapRow(ResultSet rs) throws SQLException {
-        return Clue.rehydrate(
-                new Id<>(rs.getInt("id_clue")),
-                ClueType.valueOf(rs.getString("type")),
-                new ClueDescription(rs.getString("clue_description")),
-                new Price(rs.getBigDecimal("price")),
-                new Id<>(rs.getInt("theme_id")),
-                new Id<>(rs.getInt("room_id"))
-        );
-    }
-
-
 
 }

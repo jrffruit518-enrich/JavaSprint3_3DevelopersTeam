@@ -45,7 +45,7 @@ public class ThemeDaoImpl implements ThemeDao{
         }
     }
 
-    /*@Override
+    @Override
     public Optional<Theme> findById(Id<Theme> id) {
         String sql = "SELECT * FROM theme WHERE id_theme = ?";
 
@@ -65,7 +65,7 @@ public class ThemeDaoImpl implements ThemeDao{
         } catch (SQLException e) {
             throw new RuntimeException("Error searching Theme by ID", e);
         }
-    }*/
+    }
 
     @Override
     public List<Theme> findAll() {
@@ -165,30 +165,5 @@ public class ThemeDaoImpl implements ThemeDao{
                 new Id<>(rs.getInt("id_theme")),
                 new Name(rs.getString("name"))
         );
-    }
-
-    @Override
-    public Optional<Theme> findById(Id<Theme> id) {
-        String sql = "SELECT * FROM theme WHERE id_theme = ?";
-
-        try (Connection conn = db.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, id.value());
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                Theme theme = mapRow(rs);
-                return Optional.of(theme);
-            } else {
-                return Optional.empty();
-            }
-
-        } catch (SQLException e) {
-            // *** 临时添加此行，以查看原始的 SQLException 细节 ***
-            e.printStackTrace();
-            // ****************************************************
-            throw new RuntimeException("Error searching Theme by ID", e);
-        }
     }
 }

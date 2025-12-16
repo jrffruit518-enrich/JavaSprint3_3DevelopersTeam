@@ -3,14 +3,14 @@ package org.s3team.decoration.model;
 import org.s3team.common.valueobject.Id;
 import org.s3team.common.valueobject.Name;
 import org.s3team.common.valueobject.Price;
-import org.s3team.room.model.Difficulty;
 import org.s3team.room.model.Room;
-import org.s3team.theme.model.Theme;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
-
 public class Decoration {
+
+    private Id<Decoration> idDecorationObject;
 
     private Id<Decoration> decorationId;
     private Name name;
