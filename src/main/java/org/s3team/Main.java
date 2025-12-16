@@ -37,9 +37,9 @@ public class Main {
             System.exit(1);
         }
 
-        AppFactory appFactory = new AppFactory(dbInstance);
-        InventoryMenu inventoryMenu = appFactory.inventoryMenuGenerate();
-        MainMenuController startApp = new MainMenuController(inventoryMenu);
+        //AppFactory appFactory = new AppFactory(dbInstance);
+       // InventoryMenu inventoryMenu = appFactory.inventoryMenuGenerate();
+        MainMenuController startApp = new MainMenuController();
         startApp.startApplication();
     }
 }

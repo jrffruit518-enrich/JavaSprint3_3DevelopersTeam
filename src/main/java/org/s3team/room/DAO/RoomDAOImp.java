@@ -169,7 +169,7 @@ public class RoomDAOImp implements RoomDAO {
         }
     }
 
-    @Override
+
     public int count() {
         final String sql = "SELECT COUNT(*) FROM room";
         int count = 0;
@@ -186,7 +186,6 @@ public class RoomDAOImp implements RoomDAO {
         return count;
     }
 
-    @Override
     public Price calculateTotalPrice() {
         final String sql = "SELECT SUM(price) FROM room";
         Price totalPrice = new Price(BigDecimal.ZERO);

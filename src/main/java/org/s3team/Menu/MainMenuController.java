@@ -35,6 +35,7 @@ public class MainMenuController {
                 switch (option) {
                     case 1 -> {
                         System.out.println("Changing to Theme Menu...");
+                        appFactory.themeMenuGenerate().themeMenu();
 
                     }
 
@@ -53,10 +54,10 @@ public class MainMenuController {
                         manageNotifications();
                     }
 
-                    case 5 -> {
+               /*     case 5 -> {
                         System.out.println("Changing to Certificates Menu...");
                         appFactory.certificateMenuGenerate().showMenu();
-                    }
+                    }*/
 
                     case 0 -> {
                         this.exit = true;

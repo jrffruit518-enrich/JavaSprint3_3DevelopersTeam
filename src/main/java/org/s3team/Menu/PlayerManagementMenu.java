@@ -44,7 +44,7 @@ public class PlayerManagementMenu {
                     String email = ConsoleInput.readLine("Enter Player email: ");
                     Email emailPlayer = new Email(email);
 
-                    boolean subscribed = ConsoleInput.readBoolean("Subscription to events? y/n: ");
+                    boolean subscribed = true;
 
 
                     try {

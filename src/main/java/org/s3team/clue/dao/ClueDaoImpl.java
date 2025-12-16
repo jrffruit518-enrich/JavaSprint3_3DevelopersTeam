@@ -7,6 +7,7 @@ import org.s3team.clue.model.ClueType;
 import org.s3team.common.valueobject.Id;
 import org.s3team.common.valueobject.Price;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -51,9 +52,6 @@ public class ClueDaoImpl implements ClueDao{
                 throw new SQLException("No ID returned for clue");
             }
         } catch (SQLException e){
-
-            System.err.println("Database Error Details:");
-            e.printStackTrace();
             throw new RuntimeException("Error saving clue", e);
         }
     }
@@ -131,6 +129,44 @@ public class ClueDaoImpl implements ClueDao{
         }
     }
 
+    public int count() {
+        final String sql = "SELECT COUNT(*) FROM clue";
+        int count = 0;
+        try (Connection connection = db.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Database error counting clues.", e);
+        }
+        return count;
+    }
+
+
+    public Price calculateTotalPrice() {
+        final String sql = "SELECT SUM(price) FROM clue";
+        Price totalPrice = new Price(BigDecimal.ZERO);
+        try (Connection connection = db.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                BigDecimal sumResult = rs.getBigDecimal(1);
+                if (sumResult != null) {
+                    totalPrice = new Price(sumResult);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Database error calculating total Room price.", e);
+        }
+        return totalPrice;
+    }
+
+
+
     private Clue mapRow(ResultSet rs) throws SQLException {
         return Clue.rehydrate(
                 new Id<>(rs.getInt("id_clue")),
@@ -141,4 +177,7 @@ public class ClueDaoImpl implements ClueDao{
                 new Id<>(rs.getInt("room_id"))
         );
     }
+
+
+
 }
