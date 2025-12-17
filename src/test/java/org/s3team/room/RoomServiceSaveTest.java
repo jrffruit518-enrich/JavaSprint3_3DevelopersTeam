@@ -2,10 +2,7 @@ package org.s3team.room;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
-import org.s3team.DataBaseConnection.Data_Base_Connection;
-import org.s3team.DataBaseConnection.H2_Data_Base_Connection;
-import org.s3team.DataBaseConnection.MySQL_Data_Base_Connection;
+import org.s3team.DataBaseConnection.TestConnection;
 import org.s3team.Exceptions.ThemeNotFoundException;
 import org.s3team.common.valueobject.Id;
 import org.s3team.common.valueobject.Name;
@@ -20,7 +17,6 @@ import org.s3team.theme.dao.ThemeDaoImpl;
 import org.s3team.theme.model.Theme;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,8 +42,8 @@ public class RoomServiceSaveTest {
     @BeforeEach
     void setup() {
 
-        realRoomDAO = new RoomDAOImp(H2_Data_Base_Connection.getInstance());
-        realThemeDao = new ThemeDaoImpl(H2_Data_Base_Connection.getInstance()) {
+        realRoomDAO = new RoomDAOImp(TestConnection.getInstance());
+        realThemeDao = new ThemeDaoImpl(TestConnection.getInstance()) {
             @Override
             public Optional<Theme> findById(Id<Theme> id) {
                 return Optional.of(Theme.rehydrate(id, new Name("TestTheme")));
@@ -87,7 +83,7 @@ public class RoomServiceSaveTest {
                 new Id<>(99)
         );
 
-        RoomService roomServiceWithFakeTheme = new RoomService(realRoomDAO, new ThemeDaoImpl(H2_Data_Base_Connection.getInstance()) {
+        RoomService roomServiceWithFakeTheme = new RoomService(realRoomDAO, new ThemeDaoImpl(TestConnection.getInstance()) {
             @Override
             public Optional<Theme> findById(Id<Theme> id) {
                 return Optional.empty();

@@ -1,20 +1,16 @@
 package org.s3team.room;
 
 import org.junit.jupiter.api.Test;
-import org.s3team.DataBaseConnection.H2_Data_Base_Connection;
 import org.s3team.Exceptions.RoomNotFoundException;
 import org.s3team.Exceptions.ThemeNotFoundException;
 import org.s3team.common.valueobject.Id;
 import org.s3team.common.valueobject.Price;
-import org.s3team.room.DAO.RoomDAOImp;
 import org.s3team.room.model.Room;
-import org.s3team.theme.dao.ThemeDaoImpl;
 import org.s3team.theme.model.Theme;
 
 import java.math.BigDecimal;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -22,11 +18,8 @@ import org.s3team.common.valueobject.*;
 import org.s3team.room.DAO.RoomDAO;
 import org.s3team.room.Service.RoomService;
 import org.s3team.room.model.Difficulty;
-import org.s3team.room.model.Room;
 import org.s3team.theme.dao.ThemeDao;
-import org.s3team.theme.model.Theme;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

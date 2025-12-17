@@ -3,12 +3,10 @@ package org.s3team.room;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.s3team.DataBaseConnection.Data_Base_Connection;
-import org.s3team.DataBaseConnection.H2_Data_Base_Connection;
-import org.s3team.DataBaseConnection.MySQL_Data_Base_Connection;
+import org.s3team.DataBaseConnection.TestConnection;
 import org.s3team.common.valueobject.Id;
 import org.s3team.common.valueobject.Name;
 import org.s3team.common.valueobject.Price;
-import org.s3team.room.DAO.RoomDAO;
 import org.s3team.room.DAO.RoomDAOImp;
 import org.s3team.room.model.Difficulty;
 import org.s3team.room.model.Room;
@@ -20,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.util.Optional;
 
 /**
@@ -38,7 +35,7 @@ public class RoomDAOImpTest {
 
     @BeforeEach
     public void setup() {
-        Data_Base_Connection db = H2_Data_Base_Connection.getInstance();
+        Data_Base_Connection db = TestConnection.getInstance();
         roomDAOImp = new RoomDAOImp(db);
     }
 

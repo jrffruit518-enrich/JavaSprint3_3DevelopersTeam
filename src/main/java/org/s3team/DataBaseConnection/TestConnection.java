@@ -14,15 +14,15 @@ import java.sql.SQLException;
  */
 
 
-    public class H2_Data_Base_Connection implements Data_Base_Connection {
+    public class TestConnection implements Data_Base_Connection {
 
-        private static H2_Data_Base_Connection instance;
+        private static TestConnection instance;
 
-        private H2_Data_Base_Connection() {}
+        private TestConnection() {}
 
-        public static H2_Data_Base_Connection getInstance() {
+        public static TestConnection getInstance() {
             if (instance == null) {
-                instance = new H2_Data_Base_Connection();
+                instance = new TestConnection();
             }
             return instance;
         }
@@ -34,11 +34,17 @@ import java.sql.SQLException;
                     "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MYSQL", "sa", "");
 
             try (Statement stmt = conn.createStatement()) {
-                stmt.execute("CREATE TABLE IF NOT EXISTS theme (" +
-                        "id_theme INT PRIMARY KEY, " +
-                        "name VARCHAR(255) NOT NULL)");
 
-                stmt.execute("MERGE INTO theme (id_theme, name) KEY(id_theme) VALUES (1, 'Default Theme')");
+                stmt.execute("""
+                CREATE TABLE IF NOT EXISTS theme (
+                    id_theme INT AUTO_INCREMENT PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL)""");
+
+                        stmt.execute("""
+                MERGE INTO theme (id_theme, name)
+                KEY(id_theme)
+                VALUES (1, 'Default Theme')""");
+
 
                 stmt.execute("CREATE TABLE IF NOT EXISTS room (" +
                         "id_room INT AUTO_INCREMENT PRIMARY KEY, " +
